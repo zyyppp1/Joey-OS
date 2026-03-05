@@ -1,7 +1,7 @@
 import React from 'react';
 import RetroWindow from '../components/RetroWindow';
 import AiChat from '../components/AiChat';
-import SystemMonitor from '../components/SystemMonitor'; // <--- 新增这行
+import SystemMonitor from '../components/SystemMonitor';
 
 export default function Home() {
   return (
@@ -13,7 +13,7 @@ export default function Home() {
         </h1>
       </div>
       
-      {/* 测试窗口 1 */}
+      {/* 窗口 1：README 介绍 */}
       <RetroWindow 
         title="README.txt" 
         defaultX={50} 
@@ -31,19 +31,18 @@ export default function Home() {
         </ul>
       </RetroWindow>
 
-      {/* 测试窗口 2 */}
+      {/* 窗口 2：AI 聊天大脑 */}
       <RetroWindow 
         title="AI_Joey.exe" 
         defaultX={450} 
         defaultY={100} 
-        defaultWidth={300} 
-        defaultHeight={400}
+        defaultWidth={350} 
+        defaultHeight={450}
       >
         <AiChat />
-
       </RetroWindow>
-      
-      {/* 测试窗口 3：系统监控大屏 */}
+
+      {/* 窗口 3：系统监控大屏 (我们把它装进外壳里了！) */}
       <RetroWindow 
         title="System_Monitor.exe" 
         defaultX={50} 
