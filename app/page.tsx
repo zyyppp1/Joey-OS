@@ -25,7 +25,7 @@ export default function Home() {
   };
 
   return (
-    <main className="h-screen w-screen relative overflow-hidden bg-[#008080] font-mono">
+    <main className="h-screen w-screen relative overflow-hidden bg-[#3043c1] font-mono">
       
       {/* 桌面背景大字 */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
