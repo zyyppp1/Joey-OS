@@ -20,6 +20,7 @@ export default function RetroWindow({
   defaultY = 50,
   defaultWidth = 400,
   defaultHeight = 300,
+  onClose, // <--- 补上这一行！把它从 props 里解构出来
 }: RetroWindowProps) {
   const [isClosed, setIsClosed] = useState(false);
 
