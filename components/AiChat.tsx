@@ -11,8 +11,8 @@ type Message = {
 export default function AiChat() {
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<Message[]>([
-    { role: 'assistant', content: 'AI 助手已就绪。系统版本：DeepSeek OS v1.2' },
-    { role: 'assistant', content: '输入您的问题，按回车发送。' }
+    { role: 'assistant', content: 'AI Assistant is ready!' },
+    { role: 'assistant', content: 'Ask me anything about joey' }
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
