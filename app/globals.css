@@ -2,7 +2,7 @@
 
 /* 给整个电脑屏幕铺上经典的复古深青色背景 (Classic Mac/Win95 Desktop Teal) */
 body {
-  background-color: #008080; 
+  background-color: #252eb7; 
   margin: 0;
   overflow: hidden; /* 禁止浏览器滚动条，因为这是一个桌面系统 */
   font-family: 'Courier New', Courier, monospace; /* 暂用自带的等宽字体增加极客感 */
