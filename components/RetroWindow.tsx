@@ -10,6 +10,7 @@ interface RetroWindowProps {
   defaultY?: number;
   defaultWidth?: number;
   defaultHeight?: number;
+  onClose?: () => void; // <--- 新增这行
 }
 
 export default function RetroWindow({
@@ -42,10 +43,14 @@ export default function RetroWindow({
         {/* 标题栏 */}
         <div className="window-handle flex items-center justify-between px-2 py-1 border-b-2 border-black bg-white cursor-move">
           <button 
-            onClick={() => setIsClosed(true)}
+            onClick={() => {
+                setIsClosed(true);
+                if (onClose) onClose(); // 触发父组件的关闭事件
+            }}
             className="w-4 h-4 border-2 border-black bg-white hover:bg-black active:bg-gray-500 transition-colors"
             aria-label="Close"
           />
+          
           <div className="flex-1 mx-2 text-center relative flex items-center justify-center">
             <div 
               className="absolute inset-0 pointer-events-none" 
