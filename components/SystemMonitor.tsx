@@ -74,11 +74,11 @@ export default function SystemMonitor() {
       <div className="flex-1 flex flex-col justify-center gap-4">
         <div className="border border-[#4ade80] p-4 text-center relative bg-[#4ade80]/10">
           <p className="text-[#4ade80] text-xs uppercase tracking-widest">Total Chats (DynamoDB)</p>
-          <p className="text-5xl font-bold text-white mt-2">{realStats.total_requests}</p>
+          <p className="text-3xl md:text-5xl font-bold text-white mt-2">{realStats.total_requests}</p>
         </div>
         <div className="border border-red-500 p-4 text-center bg-red-500/10">
           <p className="text-red-400 text-xs uppercase tracking-widest">Threats Blocked (Redis)</p>
-          <p className="text-5xl font-bold text-red-500 mt-2">{realStats.threats_blocked}</p>
+          <p className="text-3xl md:text-5xl font-bold text-red-500 mt-2">{realStats.threats_blocked}</p>
         </div>
       </div>
 
