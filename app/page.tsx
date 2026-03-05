@@ -1,6 +1,7 @@
 import React from 'react';
 import RetroWindow from '../components/RetroWindow';
-import AiChat from '../components/AiChat'; // <--- 新增这一行
+import AiChat from '../components/AiChat';
+import SystemMonitor from '../components/SystemMonitor'; // <--- 新增这行
 
 export default function Home() {
   return (
@@ -39,7 +40,18 @@ export default function Home() {
         defaultHeight={400}
       >
         <AiChat />
-        
+
+      </RetroWindow>
+      
+      {/* 测试窗口 3：系统监控大屏 */}
+      <RetroWindow 
+        title="System_Monitor.exe" 
+        defaultX={50} 
+        defaultY={350} 
+        defaultWidth={450} 
+        defaultHeight={380}
+      >
+        <SystemMonitor />
       </RetroWindow>
 
     </main>

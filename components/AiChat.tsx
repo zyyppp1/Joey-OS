@@ -18,8 +18,8 @@ export default function AiChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // ⚠️ 极其重要：把这里换成你昨天在 AWS 创建的真实 API Gateway 链接！
-  const AWS_API_URL = 'https://8012tocp49.execute-api.us-east-1.amazonaws.com/chat';
-
+  const AWS_API_URL = process.env.NEXT_PUBLIC_AWS_API_URL || '';
+  
   // 自动滚动到最新消息
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
