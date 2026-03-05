@@ -13,22 +13,74 @@ export default function Home() {
         </h1>
       </div>
       
-      {/* 窗口 1：README 介绍 */}
+      {/* 窗口 1：个人简历 Resume.txt */}
       <RetroWindow 
-        title="README.txt" 
+        title="Resume.txt" 
         defaultX={50} 
         defaultY={50} 
-        defaultWidth={350} 
-        defaultHeight={250}
+        defaultWidth={420} 
+        defaultHeight={450}
       >
-        <h2 className="text-xl font-bold mb-2">Welcome to Joey OS! 🚀</h2>
-        <p className="mb-2">这是一个基于 Next.js + Tailwind CSS 打造的复古监控桌面。</p>
-        <p>你可以尝试：</p>
-        <ul className="list-disc pl-5 mt-2">
-          <li>按住顶部的黑白条纹标题栏来拖拽我</li>
-          <li>把鼠标放到我的右下角边缘来拉伸大小</li>
-          <li>点击左上角的小方块关闭我</li>
-        </ul>
+        <div className="font-mono text-sm leading-relaxed text-black">
+          {/* 头部 Heading */}
+          <div className="border-b-2 border-black pb-2 mb-4">
+            <h2 className="text-2xl font-bold tracking-tighter">JOEY (YEPENG) ZHU</h2>
+            <p className="text-gray-600">Fullstack / Backend / DevOps Engineer</p>
+            <p className="text-gray-600">📍 London, UK | ✉️ joey.yepeng@gmail.com</p>
+          </div>
+          
+          {/* 技能摘要 */}
+          <div className="mb-4">
+            <h3 className="font-bold bg-black text-white inline-block px-1 mb-1">/// SKILLS & CERTS</h3>
+            <p className="mt-1">
+              <span className="font-bold">AWS Certified:</span> Solutions Architect - Associate<br/>
+              <span className="font-bold">Stack:</span> Go, Node.js, Python, React, Next.js<br/>
+              <span className="font-bold">Infra:</span> Docker, Redis, PostgreSQL, Serverless
+            </p>
+          </div>
+
+          {/* 工作经历 */}
+          <div className="mb-4">
+            <h3 className="font-bold bg-black text-white inline-block px-1 mb-1">/// EXPERIENCE</h3>
+            <div className="mt-2">
+              <p className="font-bold flex justify-between">
+                <span>SpinnrTech</span>
+                <span className="text-xs font-normal">Present</span>
+              </p>
+              <p className="text-xs text-gray-600 mb-1">Backend Engineer</p>
+              <ul className="list-disc pl-4 text-xs">
+                <li>Building high-concurrency microservices.</li>
+                <li>Optimizing API performance with Go and Lua.</li>
+              </ul>
+            </div>
+            <div className="mt-3">
+              <p className="font-bold flex justify-between">
+                <span>Everbridge</span>
+                <span className="text-xs font-normal">Previous</span>
+              </p>
+              <p className="text-xs text-gray-600 mb-1">QA Engineer</p>
+              <ul className="list-disc pl-4 text-xs">
+                <li>Implemented comprehensive automated testing.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* 教育背景 */}
+          <div>
+            <h3 className="font-bold bg-black text-white inline-block px-1 mb-1">/// EDUCATION</h3>
+            <ul className="list-none mt-1 text-xs space-y-2">
+              <li>
+                <span className="font-bold">University of Nottingham</span> (2024)<br/>
+                MSc Computer Science
+              </li>
+              <li>
+                <span className="font-bold">Beijing Union University</span> (2023)<br/>
+                BSc Software Engineering
+              </li>
+            </ul>
+          </div>
+
+        </div>
       </RetroWindow>
 
       {/* 窗口 2：AI 聊天大脑 */}
