@@ -13,69 +13,78 @@ export default function Home() {
         </h1>
       </div>
       
-      {/* 窗口 1：个人简历 Resume.txt */}
+      {/* 窗口 1：个人详细简历 (包含超链接) */}
       <RetroWindow 
         title="Resume.txt" 
-        defaultX={50} 
-        defaultY={50} 
-        defaultWidth={420} 
-        defaultHeight={450}
+        defaultX={40} 
+        defaultY={40} 
+        defaultWidth={460} 
+        defaultHeight={550}
       >
         <div className="font-mono text-sm leading-relaxed text-black">
-          {/* 头部 Heading */}
-          <div className="border-b-2 border-black pb-2 mb-4">
-            <h2 className="text-2xl font-bold tracking-tighter">JOEY (YEPENG) ZHU</h2>
-            <p className="text-gray-600">Fullstack / Backend / DevOps Engineer</p>
-            <p className="text-gray-600">📍 London, UK | ✉️ joey.yepeng@gmail.com</p>
+          
+          {/* Header 区域 */}
+          <div className="border-b-2 border-black pb-3 mb-4">
+            <h2 className="text-3xl font-black tracking-tighter">JOEY (YEPENG) ZHU</h2>
+            <p className="text-gray-700 font-bold mt-1">Fullstack / Backend / DevOps Engineer</p>
+            <div className="mt-2 flex flex-wrap gap-3 text-blue-700 font-bold">
+              {/* 请把 href 里的 # 换成你真实的链接 */}
+              <a href="https://github.com/zyyppp1" target="_blank" className="hover:bg-blue-700 hover:text-white underline">🔗 GitHub</a>
+              <a href="https://www.linkedin.com/in/yepeng-zhu-9b0021314/" target="_blank" className="hover:bg-blue-700 hover:text-white underline">🔗 LinkedIn</a>
+              <a href="mailto:joey.yepeng@gmail.com" className="hover:bg-blue-700 hover:text-white underline">✉️ Email</a>
+            </div>
           </div>
           
-          {/* 技能摘要 */}
+          {/* About Me */}
           <div className="mb-4">
-            <h3 className="font-bold bg-black text-white inline-block px-1 mb-1">/// SKILLS & CERTS</h3>
-            <p className="mt-1">
-              <span className="font-bold">AWS Certified:</span> Solutions Architect - Associate<br/>
-              <span className="font-bold">Stack:</span> Go, Node.js, Python, React, Next.js<br/>
-              <span className="font-bold">Infra:</span> Docker, Redis, PostgreSQL, Serverless
+            <p className="italic text-gray-700">
+              "A passionate Full Stack Software Developer 🚀 2024 Graduate in London, earned £2000+ with self-made scripts in two weeks. Hands-on experiences in both frontend and backend. (🤫 If you want to know the top 10 Chinese restaurants in London, reach out to me!)"
             </p>
           </div>
 
-          {/* 工作经历 */}
+          {/* 经历 Experiences */}
           <div className="mb-4">
-            <h3 className="font-bold bg-black text-white inline-block px-1 mb-1">/// EXPERIENCE</h3>
-            <div className="mt-2">
-              <p className="font-bold flex justify-between">
-                <span>SpinnrTech</span>
-                <span className="text-xs font-normal">Present</span>
+            <h3 className="font-bold bg-black text-white inline-block px-2 mb-2">/// EXPERIENCES</h3>
+            
+            <div className="mb-3">
+              <p className="font-bold flex justify-between bg-gray-200 px-1">
+                <span>SpinnrTech - Backend Engineer</span>
+                <span>Jul 2025 - Present</span>
               </p>
-              <p className="text-xs text-gray-600 mb-1">Backend Engineer</p>
-              <ul className="list-disc pl-4 text-xs">
-                <li>Building high-concurrency microservices.</li>
-                <li>Optimizing API performance with Go and Lua.</li>
+              <ul className="list-disc pl-5 mt-1 text-xs space-y-1">
+                <li>Developed secure, high-performance RESTful APIs & microservices using Node.js, Go, and Lua.</li>
+                <li>Implemented comprehensive logging, error handling, and monitoring (Observability).</li>
               </ul>
             </div>
-            <div className="mt-3">
-              <p className="font-bold flex justify-between">
-                <span>Everbridge</span>
-                <span className="text-xs font-normal">Previous</span>
+
+            <div className="mb-3">
+              <p className="font-bold flex justify-between bg-gray-200 px-1">
+                <span>Everbridge - QA Engineer (SDET)</span>
+                <span>Jul 2022 - Mar 2023</span>
               </p>
-              <p className="text-xs text-gray-600 mb-1">QA Engineer</p>
-              <ul className="list-disc pl-4 text-xs">
-                <li>Implemented comprehensive automated testing.</li>
+              <ul className="list-disc pl-5 mt-1 text-xs space-y-1">
+                <li>Designed API test cases with Postman, executed 500 manual tests every release.</li>
+                <li>Automated 200+ cases using Selenium, reducing manual testing time by 35%.</li>
               </ul>
             </div>
           </div>
 
-          {/* 教育背景 */}
-          <div>
-            <h3 className="font-bold bg-black text-white inline-block px-1 mb-1">/// EDUCATION</h3>
-            <ul className="list-none mt-1 text-xs space-y-2">
+          {/* 证书与教育 Certs & Education */}
+          <div className="mb-4">
+            <h3 className="font-bold bg-black text-white inline-block px-2 mb-2">/// CERTS & EDUCATION</h3>
+            <ul className="list-square pl-4 text-xs space-y-2">
               <li>
-                <span className="font-bold">University of Nottingham</span> (2024)<br/>
-                MSc Computer Science
+                <span className="font-bold text-sm">🏆 AWS Certified Solutions Architect - Associate</span><br/>
+                <span className="text-gray-600">Mastered Lambda, DynamoDB, API Gateway, EC2, RDS.</span>
               </li>
               <li>
-                <span className="font-bold">Beijing Union University</span> (2023)<br/>
-                BSc Software Engineering
+                <span className="font-bold">Udemy:</span> Complete Full-Stack Web Dev Bootcamp & Python DSA.
+              </li>
+              <li className="pt-1">
+                <span className="font-bold">University of Nottingham (MSc CS):</span> Merit Award. Led 2 teams, wrote Python Selenium scripts for visa slots.
+              </li>
+              <li>
+                <span className="font-bold">Beijing Union University (BEng SE):</span> GPA 83 (Top 10%).
               </li>
             </ul>
           </div>
