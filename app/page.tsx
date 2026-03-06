@@ -5,6 +5,7 @@ import AiChat from '../components/AiChat';
 import SystemMonitor from '../components/SystemMonitor';
 import ResumeApp from '../components/ResumeApp';
 import LiveChat from '../components/LiveChat';
+import BlogApp from '../components/BlogApp';
 
 type AppState = { open: boolean; minimized: boolean };
 
@@ -19,6 +20,7 @@ export default function Home() {
     ai: { open: true, minimized: false },
     monitor: { open: true, minimized: false },
     telegram: { open: true, minimized: false }, // <--- 这里改成 true
+    blog: { open: false, minimized: false }, // <--- 新增这行
   });
 
   // 初始化：检测屏幕尺寸，防止 SSR 水合报错
@@ -71,6 +73,8 @@ export default function Home() {
       case 'monitor': 
         // 最右侧，紧贴 Telegram (X: 970 + 360 + 20间距 = 1350)
         return { defaultX: 1350, defaultY: 40, defaultWidth: 420, defaultHeight: 500 };
+      // 3. 为 Blog 窗口设定位置 (居中偏右)
+      case 'blog': return { defaultX: 400, defaultY: 150, defaultWidth: 700, defaultHeight: 500 };
       default: 
         return { defaultX: 50, defaultY: 50, defaultWidth: 400, defaultHeight: 300 };
     }
@@ -107,6 +111,14 @@ export default function Home() {
           <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-500 border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)] group-hover:bg-blue-400 transition-colors text-xl">✈️</div>
           <span className="mt-1 text-white bg-black px-1 text-[10px] md:text-xs text-center group-hover:bg-blue-600">LiveChat.app</span>
         </div>
+
+        <div className="flex flex-col items-center cursor-pointer group w-16 md:w-20" onClick={() => openOrRestoreApp('blog')}>
+          <div className="w-10 h-10 md:w-12 md:h-12 bg-white border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)] group-hover:bg-yellow-200 transition-colors text-xl">
+            📝
+          </div>
+          <span className="mt-1 text-white bg-black px-1 text-[10px] md:text-xs text-center group-hover:bg-blue-600">Blogs.exe</span>
+        </div>
+
       </div>
 
       {/* ================= 渲染窗口 ================= */}
@@ -140,6 +152,15 @@ export default function Home() {
           isMinimized={apps.telegram.minimized} onMinimize={() => minimizeApp('telegram')} onClose={() => closeApp('telegram')}
           onClickWindow={() => bringToFront('telegram')} zIndex={activeWindow === 'telegram' ? 50 : 10}>
           <LiveChat />
+        </RetroWindow>
+      )}
+
+      {/* 5. 渲染 Blog 窗口 */}
+      {apps.blog.open && (
+        <RetroWindow title="Blog_Reader.exe" {...getWindowConfig('blog')}
+          isMinimized={apps.blog.minimized} onMinimize={() => minimizeApp('blog')} onClose={() => closeApp('blog')}
+          onClickWindow={() => bringToFront('blog')} zIndex={activeWindow === 'blog' ? 50 : 10}>
+          <BlogApp />
         </RetroWindow>
       )}
 
