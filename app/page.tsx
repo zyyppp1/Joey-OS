@@ -6,6 +6,8 @@ import SystemMonitor from '../components/SystemMonitor';
 import ResumeApp from '../components/ResumeApp';
 import LiveChat from '../components/LiveChat';
 import BlogApp from '../components/BlogApp';
+import GitHubApp from '../components/GitHubApp';
+import LinkedInApp from '../components/LinkedInApp';
 
 type AppState = { open: boolean; minimized: boolean };
 
@@ -21,6 +23,8 @@ export default function Home() {
     monitor: { open: true, minimized: false },
     telegram: { open: true, minimized: false }, // <--- 这里改成 true
     blog: { open: false, minimized: false }, // <--- 新增这行
+    github: { open: false, minimized: false },   // <--- 新增
+    linkedin: { open: false, minimized: false }, // <--- 新增
   });
 
   // 初始化：检测屏幕尺寸，防止 SSR 水合报错
@@ -89,7 +93,13 @@ export default function Home() {
         // 最右侧，紧贴 Telegram (X: 970 + 360 + 20间距 = 1350)
         return { defaultX: 1380, defaultY: 40, defaultWidth: 420, defaultHeight: 500 };
       // 3. 为 Blog 窗口设定位置 (居中偏右)
-      case 'blog': return { defaultX: 630, defaultY: 550, defaultWidth: 1175, defaultHeight: 400 };
+      case 'blog':
+         return { defaultX: 630, defaultY: 550, defaultWidth: 1175, defaultHeight: 400 };
+      case 'github':
+         return { defaultX: 630, defaultY: 550, defaultWidth: 750, defaultHeight: 420 };
+      case 'linkedin':
+         return { defaultX: 630, defaultY: 550, defaultWidth: 450, defaultHeight: 420 };
+
       default: 
         return { defaultX: 50, defaultY: 50, defaultWidth: 400, defaultHeight: 300 };
     }
@@ -134,6 +144,22 @@ export default function Home() {
           <span className="mt-1 text-white bg-black px-1 text-[10px] md:text-xs text-center group-hover:bg-blue-600">Blogs.exe</span>
         </div>
 
+        {/* GitHub 图标 */}
+        <div className="flex flex-col items-center cursor-pointer group w-16 md:w-20 p-2" onClick={() => openOrRestoreApp('github')}>
+          <div className="w-10 h-10 md:w-12 md:h-12 bg-black border-2 border-[#4ade80] flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)] group-hover:bg-gray-800 transition-colors text-xl">
+            👨‍💻
+          </div>
+          <span className="mt-1 text-white bg-black px-1 text-[10px] md:text-xs text-center group-hover:bg-[#4ade80] group-hover:text-black">GitHub.exe</span>
+        </div>
+
+        {/* LinkedIn 图标 */}
+        <div className="flex flex-col items-center cursor-pointer group w-16 md:w-20 p-2" onClick={() => openOrRestoreApp('linkedin')}>
+          <div className="w-10 h-10 md:w-12 md:h-12 bg-amber-500 border-2 border-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)] group-hover:bg-amber-400 transition-colors text-xl">
+            🕵️‍♂️
+          </div>
+          <span className="mt-1 text-white bg-black px-1 text-[10px] md:text-xs text-center group-hover:bg-amber-500 group-hover:text-black">LinkedIn.exe</span>
+        </div>
+
       </div>
 
       {/* ================= 渲染窗口 ================= */}
@@ -176,6 +202,22 @@ export default function Home() {
           isMinimized={apps.blog.minimized} onMinimize={() => minimizeApp('blog')} onClose={() => closeApp('blog')}
           onClickWindow={() => bringToFront('blog')} zIndex={activeWindow === 'blog' ? 50 : 10}>
           <BlogApp />
+        </RetroWindow>
+      )}
+
+      {apps.github.open && (
+        <RetroWindow title="GitHub_Terminal.exe" {...getWindowConfig('github')}
+          isMinimized={apps.github.minimized} onMinimize={() => minimizeApp('github')} onClose={() => closeApp('github')}
+          onClickWindow={() => bringToFront('github')} zIndex={activeWindow === 'github' ? 50 : 10}>
+          <GitHubApp />
+        </RetroWindow>
+      )}
+
+      {apps.linkedin.open && (
+        <RetroWindow title="LinkedIn.sys" {...getWindowConfig('linkedin')}
+          isMinimized={apps.linkedin.minimized} onMinimize={() => minimizeApp('linkedin')} onClose={() => closeApp('linkedin')}
+          onClickWindow={() => bringToFront('linkedin')} zIndex={activeWindow === 'linkedin' ? 50 : 10}>
+          <LinkedInApp />
         </RetroWindow>
       )}
 
