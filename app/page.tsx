@@ -26,8 +26,23 @@ export default function Home() {
   // 初始化：检测屏幕尺寸，防止 SSR 水合报错
   useEffect(() => {
     setIsMounted(true);
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
+    const checkMobile = () => {
+      const isMob = window.innerWidth < 768;
+      setIsMobile(isMob);
+      
+      // 💡 移动端核心优化：如果是手机屏幕，强制把所有窗口设为“关闭”状态
+      if (isMob) {
+        setApps(prev => {
+          const closedApps = { ...prev };
+          Object.keys(closedApps).forEach(key => {
+            closedApps[key].open = false;
+          });
+          return closedApps;
+        });
+      }
+    };
+    
+    checkMobile(); // 首次运行检测
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
@@ -87,7 +102,7 @@ export default function Home() {
       
       {/* 桌面背景 */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-        <h1 className="text-white/20 text-5xl md:text-8xl font-black tracking-widest drop-shadow-lg text-center">JOEY_OS</h1>
+        <h1 className="text-white/20 text-5xl md:text-8xl font-black tracking-widest drop-shadow-lg text-center">Joey</h1>
       </div>
 
       {/* 桌面图标区域 */}

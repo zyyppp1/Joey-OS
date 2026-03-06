@@ -32,7 +32,7 @@ export default function ResumeApp() {
           <div className="flex gap-4 mb-4 items-start">
             <div className="w-12 h-12 bg-white border-2 border-black flex-shrink-0 flex items-center justify-center p-1 cursor-pointer hover:bg-gray-100">
               {/* 替换为你真实的图片路径 */}
-              <img src="images/spinnrtech_red.avif" alt="SpinnrTech" className="w-full h-full object-contain" />
+              <img src="/images/spinnrtech_red.avif" alt="SpinnrTech" className="w-full h-full object-contain" />
             </div>
             <div>
               <div className="flex justify-between items-baseline">
