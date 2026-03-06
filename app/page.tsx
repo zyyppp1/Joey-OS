@@ -18,8 +18,8 @@ export default function Home() {
 
   // 💡 1. 读取环境变量：如果没有设置，默认当做生产环境 (production)
   const appEnv = process.env.NEXT_PUBLIC_APP_ENV || 'production';
-  // 💡 2. 根据环境智能匹配颜色：stage 用你的紫色，production 用经典复古绿
-  const bgClass = appEnv === 'stage' ? 'bg-[#6f80eb]' : 'bg-[#808080]';
+  // 💡 2. 根据环境智能匹配颜色：stage 用灰色。
+  const bgClass = appEnv === 'stage' ? 'bg-[#808080]' : 'bg-[#6f80eb]';
 
   // 默认直接打开简历、AI、监控和LiveChat
   const [apps, setApps] = useState<Record<string, AppState>>({
