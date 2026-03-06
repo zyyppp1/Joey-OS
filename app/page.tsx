@@ -46,6 +46,7 @@ export default function Home() {
   };
 
   // 根据设备动态计算窗口的初始位置和大小
+  // 根据设备动态计算窗口的初始位置和大小
   const getWindowConfig = (appName: string) => {
     if (isMobile) {
       // 移动端：宽度占满90%，居中，稍微错开Y轴
@@ -55,13 +56,20 @@ export default function Home() {
       return { defaultX: window.innerWidth * 0.05, defaultY: 40 + offset, defaultWidth: width, defaultHeight: height };
     }
     
-    // 桌面端：你原本期望的完美排版
+    // 桌面端：调整到“刚刚好完全展示内容”的完美比例！
     switch(appName) {
-      case 'resume': return { defaultX: 120, defaultY: 40, defaultWidth: 500, defaultHeight: 650 };
-      case 'ai': return { defaultX: 650, defaultY: 40, defaultWidth: 360, defaultHeight: 480 };
-      case 'monitor': return { defaultX: 650, defaultY: 540, defaultWidth: 450, defaultHeight: 300 };
-      case 'telegram': return { defaultX: 300, defaultY: 200, defaultWidth: 400, defaultHeight: 450 };
-      default: return { defaultX: 50, defaultY: 50, defaultWidth: 400, defaultHeight: 300 };
+      case 'resume': 
+        // 宽度稍微加宽到 520，高度加高到 780，刚好能吃下所有的经历和证书
+        return { defaultX: 100, defaultY: 40, defaultWidth: 520, defaultHeight: 780 };
+      case 'ai': 
+        return { defaultX: 640, defaultY: 40, defaultWidth: 360, defaultHeight: 480 };
+      case 'monitor': 
+        // 高度加高到 360，让大数字和边框有充足的呼吸感
+        return { defaultX: 640, defaultY: 540, defaultWidth: 450, defaultHeight: 360 };
+      case 'telegram': 
+        return { defaultX: 300, defaultY: 200, defaultWidth: 400, defaultHeight: 450 };
+      default: 
+        return { defaultX: 50, defaultY: 50, defaultWidth: 400, defaultHeight: 300 };
     }
   };
 
