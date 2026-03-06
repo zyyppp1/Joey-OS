@@ -83,7 +83,7 @@ export default function Home() {
   if (!isMounted) return null; // 确保在拿到屏幕尺寸后再渲染窗口
 
   return (
-    <main className="h-screen w-screen relative overflow-hidden bg-[#008080] font-mono">
+    <main className="h-screen w-screen relative overflow-hidden bg-[#6f80eb] font-mono">
       
       {/* 桌面背景 */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
