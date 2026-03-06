@@ -14,7 +14,12 @@ type AppState = { open: boolean; minimized: boolean };
 export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [activeWindow, setActiveWindow] = useState<string>('resume'); // 控制窗口层级
+  const [activeWindow, setActiveWindow] = useState<string>('resume');
+
+  // 💡 1. 读取环境变量：如果没有设置，默认当做生产环境 (production)
+  const appEnv = process.env.NEXT_PUBLIC_APP_ENV || 'production';
+  // 💡 2. 根据环境智能匹配颜色：stage 用你的紫色，production 用经典复古绿
+  const bgClass = appEnv === 'stage' ? 'bg-[#6f80eb]' : 'bg-[#808080]';
 
   // 默认直接打开简历、AI、监控和LiveChat
   const [apps, setApps] = useState<Record<string, AppState>>({
@@ -50,6 +55,8 @@ export default function Home() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  
 
   const bringToFront = (appName: string) => setActiveWindow(appName);
 
@@ -108,11 +115,14 @@ export default function Home() {
   if (!isMounted) return null; // 确保在拿到屏幕尺寸后再渲染窗口
 
   return (
-    <main className="h-screen w-screen relative overflow-hidden bg-[#6f80eb] font-mono">
+    // 💡 3. 把写死的 bg-[xxx] 换成我们刚刚定义的 bgClass 变量
+    <main className={`h-screen w-screen relative overflow-hidden ${bgClass} font-mono`}>
       
-      {/* 桌面背景 */}
+      {/* 桌面背景文字也可以顺便加个判断，让你一眼看出这是 stage */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-        <h1 className="text-white/20 text-5xl md:text-8xl font-black tracking-widest drop-shadow-lg text-center">Joey</h1>
+        <h1 className="text-white/20 text-5xl md:text-8xl font-black tracking-widest drop-shadow-lg text-center">
+          {appEnv === 'stage' ? 'JOEY_STAGE' : 'Joey'}
+        </h1>
       </div>
 
       {/* 桌面图标区域 */}
