@@ -8,6 +8,9 @@ type ChatMessage = {
   text: string;
 };
 
+// 💡 关键修改 1：模块级变量，页面刷新才重置，关闭窗口不重置！
+let globalSessionId = '';
+
 export default function LiveChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { sender: 'joey', text: 'System Initialized. Awaiting your ping...' }
@@ -20,19 +23,19 @@ export default function LiveChat() {
   const AWS_API_URL = process.env.NEXT_PUBLIC_AWS_API_URL || '';
 
   useEffect(() => {
-    // 1. 生成一个唯一的会话 ID
-    const newSessionId = Math.random().toString(36).substring(2, 10);
-    setSessionId(newSessionId);
+    // 💡 关键修改 2：如果全局 ID 是空的，才生成新的；否则复用之前的！
+    if (!globalSessionId) {
+      globalSessionId = Math.random().toString(36).substring(2, 10);
+    }
+    setSessionId(globalSessionId);
 
-    // 2. 初始化 Pusher 长连接 (WebSocket)
+    // 初始化 Pusher 长连接
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY || '', {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || '',
     });
 
-    // 3. 订阅属于这个访客的专属频道
-    const channel = pusher.subscribe(`session-${newSessionId}`);
+    const channel = pusher.subscribe(`session-${globalSessionId}`);
     
-    // 4. 监听 'new_message' 事件 (当你用手机回复时，这里会瞬间闪电般收到！)
     channel.bind('new_message', function (data: ChatMessage) {
       setMessages((prev) => [...prev, data]);
     });
