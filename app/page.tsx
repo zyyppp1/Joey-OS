@@ -13,12 +13,12 @@ export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
   const [activeWindow, setActiveWindow] = useState<string>('resume'); // 控制窗口层级
 
-  // 默认直接打开简历、AI、和监控
+  // 默认直接打开简历、AI、监控和LiveChat
   const [apps, setApps] = useState<Record<string, AppState>>({
     resume: { open: true, minimized: false },
     ai: { open: true, minimized: false },
     monitor: { open: true, minimized: false },
-    telegram: { open: false, minimized: false },
+    telegram: { open: true, minimized: false }, // <--- 这里改成 true
   });
 
   // 初始化：检测屏幕尺寸，防止 SSR 水合报错
@@ -49,25 +49,28 @@ export default function Home() {
   // 根据设备动态计算窗口的初始位置和大小
   const getWindowConfig = (appName: string) => {
     if (isMobile) {
-      // 移动端：宽度占满90%，居中，稍微错开Y轴
+      // 移动端：宽度占满90%，居中，稍微错开Y轴（安全隔离，不动它）
       const width = window.innerWidth * 0.9;
       const height = window.innerHeight * 0.7;
       const offset = Object.keys(apps).indexOf(appName) * 20;
       return { defaultX: window.innerWidth * 0.05, defaultY: 40 + offset, defaultWidth: width, defaultHeight: height };
     }
     
-    // 桌面端：调整到“刚刚好完全展示内容”的完美比例！
+    // 🖥️ 电脑端：终极并排布局 (Side-by-side Command Center)
+    // 假设常见的 1920x1080 / 1440x900 屏幕，统一 Y 轴为 40，X 轴依次递增排列
     switch(appName) {
       case 'resume': 
-        // 宽度稍微加宽到 520，高度加高到 780，刚好能吃下所有的经历和证书
-        return { defaultX: 100, defaultY: 40, defaultWidth: 520, defaultHeight: 780 };
+        // 最左边，避开桌面图标 (X: 100)
+        return { defaultX: 100, defaultY: 40, defaultWidth: 480, defaultHeight: 780 };
       case 'ai': 
-        return { defaultX: 640, defaultY: 40, defaultWidth: 360, defaultHeight: 480 };
-      case 'monitor': 
-        // 高度加高到 360，让大数字和边框有充足的呼吸感
-        return { defaultX: 640, defaultY: 540, defaultWidth: 450, defaultHeight: 360 };
+        // 紧贴简历右侧 (X: 100 + 480 + 20间距 = 600)
+        return { defaultX: 600, defaultY: 40, defaultWidth: 350, defaultHeight: 500 };
       case 'telegram': 
-        return { defaultX: 300, defaultY: 200, defaultWidth: 400, defaultHeight: 450 };
+        // 紧贴 AI 右侧 (X: 600 + 350 + 20间距 = 970)
+        return { defaultX: 970, defaultY: 40, defaultWidth: 360, defaultHeight: 500 };
+      case 'monitor': 
+        // 最右侧，紧贴 Telegram (X: 970 + 360 + 20间距 = 1350)
+        return { defaultX: 1350, defaultY: 40, defaultWidth: 420, defaultHeight: 500 };
       default: 
         return { defaultX: 50, defaultY: 50, defaultWidth: 400, defaultHeight: 300 };
     }
