@@ -5,8 +5,12 @@ import React, { useState, useEffect } from 'react';
 export default function SystemMonitor() {
   const [uptime, setUptime] = useState(0);
   const [realStats, setRealStats] = useState({ total_requests: 0, threats_blocked: 0 });
-  const [countdown, setCountdown] = useState(10); // 10秒倒计时
+  const [countdown, setCountdown] = useState(10);
   const [isFetching, setIsFetching] = useState(false);
+  
+  // 新增：动态模拟的网络延迟和终端日志
+  const [latency, setLatency] = useState(45);
+  const [logs, setLogs] = useState<string[]>(['[SYSTEM] Monitor initialized...']);
 
   const AWS_API_URL = process.env.NEXT_PUBLIC_AWS_API_URL || '';
 
@@ -25,27 +29,45 @@ export default function SystemMonitor() {
           total_requests: data.total_requests || 0,
           threats_blocked: data.threats_blocked || 0
         });
+        setLogs(prev => [...prev, '[INFO] DynamoDB GET /metrics 200 OK'].slice(-4));
       }
     } catch (error) {
-      console.error("Failed to fetch metrics:", error);
+      console.error(error);
+      setLogs(prev => [...prev, '[ERROR] Failed to fetch telemetry data'].slice(-4));
     } finally {
       setIsFetching(false);
-      setCountdown(10); // 数据拉取完成后，重置倒计时
+      setCountdown(10);
     }
   };
 
   useEffect(() => {
-    fetchRealMetrics(); // 初始拉取
+    fetchRealMetrics();
 
     const timer = setInterval(() => {
       setUptime(prev => prev + 1);
       setCountdown(prev => {
         if (prev <= 1) {
-          fetchRealMetrics(); // 倒计时结束，触发拉取
+          fetchRealMetrics();
           return 10;
         }
         return prev - 1;
       });
+
+      // 每秒刷新一次动态延迟，并在特定概率下输出系统日志
+      setLatency(Math.floor(Math.random() * 40) + 30); // 30ms - 70ms 之间波动
+      
+      const possibleLogs = [
+        '[INFO] Redis rate-limit check passed',
+        '[SYS] Memory footprint stable at 55MB',
+        '[INFO] WebSocket heartbeat sent',
+        '[SYS] DeepSeek API connection alive'
+      ];
+      if (Math.random() > 0.6) {
+        setLogs(prev => {
+          const newLog = possibleLogs[Math.floor(Math.random() * possibleLogs.length)];
+          return [...prev, newLog].slice(-4); // 只保留最近的 4 条日志
+        });
+      }
     }, 1000);
 
     return () => clearInterval(timer);
@@ -56,12 +78,14 @@ export default function SystemMonitor() {
       
       {/* 顶部硬核状态栏 */}
       <div className="border-b-2 border-[#4ade80] pb-3 mb-4">
-        <p className="font-bold text-lg mb-1">AWS Telemetry</p>
-        <div className="flex justify-between text-xs text-gray-400">
+        <div className="flex justify-between items-end mb-1">
+          <p className="font-bold text-lg">AWS Telemetry</p>
+          <p className="text-xs text-yellow-400">Ping: {latency}ms</p>
+        </div>
+        <div className="flex justify-between text-[10px] sm:text-xs text-gray-400">
           <div>
             <p>SERVER: AWS Serverless API</p>
             <p>DB: DynamoDB & Redis</p>
-            <p>REGION: us-east-1</p>
           </div>
           <div className="text-right">
             <p>UPTIME: {uptime}s</p>
@@ -71,19 +95,26 @@ export default function SystemMonitor() {
       </div>
 
       {/* 核心真实数据展示区 */}
-      <div className="flex-1 flex flex-col justify-center gap-4">
-        <div className="border border-[#4ade80] p-4 text-center relative bg-[#4ade80]/10">
-          <p className="text-[#4ade80] text-xs uppercase tracking-widest">Total Chats (DynamoDB)</p>
-          <p className="text-3xl md:text-5xl font-bold text-white mt-2">{realStats.total_requests}</p>
+      <div className="flex-1 flex flex-col justify-center gap-3">
+        <div className="border border-[#4ade80] p-3 text-center bg-[#4ade80]/10">
+          <p className="text-[#4ade80] text-[10px] sm:text-xs uppercase tracking-widest">Total Chats (DynamoDB)</p>
+          <p className="text-4xl sm:text-5xl font-bold text-white mt-1">{realStats.total_requests}</p>
         </div>
-        <div className="border border-red-500 p-4 text-center bg-red-500/10">
-          <p className="text-red-400 text-xs uppercase tracking-widest">Threats Blocked (Redis)</p>
-          <p className="text-3xl md:text-5xl font-bold text-red-500 mt-2">{realStats.threats_blocked}</p>
+        <div className="border border-red-500 p-3 text-center bg-red-500/10">
+          <p className="text-red-400 text-[10px] sm:text-xs uppercase tracking-widest">Threats Blocked (Redis)</p>
+          <p className="text-4xl sm:text-5xl font-bold text-red-500 mt-1">{realStats.threats_blocked}</p>
         </div>
       </div>
 
+      {/* 新增：实时终端日志滚动 */}
+      <div className="mt-3 h-16 overflow-hidden text-[10px] leading-tight text-gray-400 opacity-80 border-t border-dashed border-gray-700 pt-2">
+        {logs.map((log, i) => (
+          <div key={i}>{log}</div>
+        ))}
+      </div>
+
       {/* 底部倒计时 */}
-      <div className="mt-4 pt-3 border-t-2 border-[#4ade80] text-center">
+      <div className="mt-2 pt-2 border-t-2 border-[#4ade80] text-center text-xs">
         <p className={`font-bold ${isFetching ? 'text-yellow-400 animate-pulse' : 'text-[#4ade80]'}`}>
           {isFetching ? '>>> SYNCING CLOUD DATA...' : `>>> NEXT SYNC IN: ${countdown}s`}
         </p>

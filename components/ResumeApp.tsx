@@ -17,7 +17,7 @@ export default function ResumeApp() {
           download="Joey_Yepeng_Zhu_Resume.pdf"
           className="bg-black text-white px-4 py-2 font-bold hover:bg-gray-800 active:translate-y-1 shadow-[2px_2px_0px_rgba(0,0,0,0.3)] transition-all cursor-pointer"
         >
-          ⬇️ DOWNLOAD PDF
+          ⬇️ DOWNLOAD
         </a>
       </div>
 
@@ -69,7 +69,8 @@ export default function ResumeApp() {
         {/* Education */}
         <section>
           <h3 className="font-bold bg-black text-white inline-block px-2 mb-3">/// EDUCATION</h3>
-          <div className="flex gap-4 items-start">
+          
+          <div className="flex gap-4 items-start mb-4">
             <div className="w-12 h-12 bg-white border-2 border-black flex-shrink-0 flex items-center justify-center p-1">
               <img src="/images/NottinghamLogo.png" alt="Nottingham" className="w-full h-full object-contain" />
             </div>
@@ -77,6 +78,17 @@ export default function ResumeApp() {
               <h4 className="font-bold text-base">University of Nottingham</h4>
               <p className="text-xs font-bold text-gray-600">MSc in Computer Science (2023 - 2024)</p>
               <p className="text-xs mt-1">Merit Award Graduate. Wrote a Python Selenium script to search US visa interview slots and earned £2000+ in two weeks.</p>
+            </div>
+          </div>
+
+          <div className="flex gap-4 items-start">
+            <div className="w-12 h-12 bg-white border-2 border-black flex-shrink-0 flex items-center justify-center p-1">
+              <img src="/images/Beijing_Union_University_logo.png" alt="BUU" className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <h4 className="font-bold text-base">Beijing Union University</h4>
+              <p className="text-xs font-bold text-gray-600">BEng in Software Engineering (2019 - 2023)</p>
+              <p className="text-xs mt-1">Graduated with GPA: 83 (Ranked Top 10%). Led a class as president and an association with 100 members. Published one paper on path planning for robots.</p>
             </div>
           </div>
         </section>

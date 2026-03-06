@@ -13,7 +13,9 @@ let globalSessionId = '';
 
 export default function LiveChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { sender: 'joey', text: 'System Initialized. Awaiting your ping...' }
+    { sender: 'joey', text: '>>> SECURE CHANNEL ESTABLISHED <<<' },
+    { sender: 'joey', text: 'Data Flow: Web -> AWS API Gateway -> AWS Lambda -> Telegram API.' },
+    { sender: 'joey', text: 'Drop a message below! It will ping my phone directly. If I am available, I will reply via Pusher WebSockets in real-time. 😉' }
   ]);
   const [input, setInput] = useState('');
   const [sessionId, setSessionId] = useState('');

@@ -11,8 +11,8 @@ type Message = {
 export default function AiChat() {
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<Message[]>([
-    { role: 'assistant', content: 'AI Assistant is ready!' },
-    { role: 'assistant', content: 'Ask me anything about joey' }
+    { role: 'assistant', content: 'SYSTEM: DeepSeek Neural Engine Initialized.' },
+    { role: 'assistant', content: 'Hi! I am Joey\'s AI Assistant. My mission is to help you understand why Joey is the perfect fit for your team. Ask me anything about his tech stack, work experience, or projects!' }
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);

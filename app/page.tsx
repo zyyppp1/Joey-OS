@@ -78,7 +78,7 @@ export default function Home() {
     switch(appName) {
       case 'resume': 
         // 最左边，避开桌面图标 (X: 100)
-        return { defaultX: 100, defaultY: 40, defaultWidth: 480, defaultHeight: 780 };
+        return { defaultX: 100, defaultY: 40, defaultWidth: 480, defaultHeight: 850 };
       case 'ai': 
         // 紧贴简历右侧 (X: 100 + 480 + 20间距 = 600)
         return { defaultX: 600, defaultY: 40, defaultWidth: 350, defaultHeight: 500 };
@@ -163,7 +163,7 @@ export default function Home() {
       )}
 
       {apps.telegram.open && (
-        <RetroWindow title="Secure_Channel_Telegram.exe" {...getWindowConfig('telegram')}
+        <RetroWindow title="LiveChat.exe" {...getWindowConfig('telegram')} // <--- 把这里的 title 改成 LiveChat.exe
           isMinimized={apps.telegram.minimized} onMinimize={() => minimizeApp('telegram')} onClose={() => closeApp('telegram')}
           onClickWindow={() => bringToFront('telegram')} zIndex={activeWindow === 'telegram' ? 50 : 10}>
           <LiveChat />
