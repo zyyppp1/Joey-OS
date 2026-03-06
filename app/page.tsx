@@ -78,18 +78,18 @@ export default function Home() {
     switch(appName) {
       case 'resume': 
         // 最左边，避开桌面图标 (X: 100)
-        return { defaultX: 100, defaultY: 40, defaultWidth: 480, defaultHeight: 850 };
+        return { defaultX: 130, defaultY: 40, defaultWidth: 480, defaultHeight: 850 };
       case 'ai': 
         // 紧贴简历右侧 (X: 100 + 480 + 20间距 = 600)
-        return { defaultX: 600, defaultY: 40, defaultWidth: 350, defaultHeight: 500 };
+        return { defaultX: 630, defaultY: 40, defaultWidth: 350, defaultHeight: 500 };
       case 'telegram': 
         // 紧贴 AI 右侧 (X: 600 + 350 + 20间距 = 970)
-        return { defaultX: 970, defaultY: 40, defaultWidth: 360, defaultHeight: 500 };
+        return { defaultX: 1000, defaultY: 40, defaultWidth: 360, defaultHeight: 500 };
       case 'monitor': 
         // 最右侧，紧贴 Telegram (X: 970 + 360 + 20间距 = 1350)
-        return { defaultX: 1350, defaultY: 40, defaultWidth: 420, defaultHeight: 500 };
+        return { defaultX: 1380, defaultY: 40, defaultWidth: 420, defaultHeight: 500 };
       // 3. 为 Blog 窗口设定位置 (居中偏右)
-      case 'blog': return { defaultX: 400, defaultY: 150, defaultWidth: 700, defaultHeight: 500 };
+      case 'blog': return { defaultX: 630, defaultY: 550, defaultWidth: 1175, defaultHeight: 400 };
       default: 
         return { defaultX: 50, defaultY: 50, defaultWidth: 400, defaultHeight: 300 };
     }
