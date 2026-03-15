@@ -1,4 +1,4 @@
-
+[English](README.md) | [简体中文](README_zh.md)
 
 # 🖥️ Joey OS: A Serverless Web Desktop & Interactive Portfolio
 
