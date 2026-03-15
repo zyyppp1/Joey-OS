@@ -1,6 +1,5 @@
 
 
-```markdown
 # 🖥️ Joey OS: A Serverless Web Desktop & Interactive Portfolio
 
 > **Transforming a static resume into a fully interactive, event-driven Web Operating System.**
@@ -26,7 +25,6 @@ This project adopts a **Serverless & Event-Driven Architecture** to ensure high 
 - **AI & Security:** DeepSeek LLM API, Upstash Serverless Redis.
 - **DevOps:** AWS Amplify.
 
----
 
 ## 🔥 Engineering Highlights (The "Hardcore" Details)
 
@@ -34,7 +32,6 @@ This project adopts a **Serverless & Event-Driven Architecture** to ensure high 
 - **Hand-Rolled WebSocket HMAC Signatures:** Rather than utilizing the bulky official Pusher SDK, the WebSocket authentication and broadcasting logic were engineered from scratch. By manually assembling the HTTP request and generating SHA256 signatures using Python's native `hashlib` and `hmac`, the system maintains an extremely small runtime footprint while proving a profound grasp of cryptographic authentication protocols and RESTful standards.
 - **VPC-Less Serverless Architecture:** Implementing rate-limiting usually dictates the use of Redis. However, deploying AWS ElastiCache necessitates complex VPC configurations, which inadvertently introduce Lambda "cold-start" latency and continuous billing. Joey OS circumvents this by adopting **Upstash Serverless Redis**, communicating entirely via REST APIs over the public internet. This delivers the high-concurrency benefits of Redis without the VPC overhead.
 
----
 
 ## 🧠 Key Technical Challenges & Solutions
 
@@ -52,7 +49,6 @@ This project adopts a **Serverless & Event-Driven Architecture** to ensure high 
   - **GitHub:** Polled the public GitHub REST API to fetch repositories dynamically and integrated `github-readme-stats` SVG visualizations to rebuild a functional, hacker-style terminal UI.
   - **LinkedIn:** Used CSS animations (scanning laser lines) and React to render a highly simulated Digital ID Card, providing secure external links while maintaining the desktop's immersive experience.
 
----
 
 ## 🔒 Security, Privacy & Open Source Adaptability
 
@@ -61,7 +57,6 @@ Exposing direct-to-mobile WebSockets and LLM APIs to the public internet introdu
 - **IP-Based Rate Limiting via Redis:** To mitigate abuse, I implemented a sliding-window rate limiter using Upstash Serverless Redis at the API Gateway level. Client IP addresses are extracted; any requests exceeding the threshold (e.g., >15 requests/hour) immediately receive a `429 Too Many Requests` response, safeguarding the backend architecture.
 - **Secrets Management & Adaptability:** Joey OS was designed to be easily forkable. Strict adherence to privacy means **zero hardcoded secrets** exist in the codebase. All sensitive endpoints and keys are injected at runtime via `.env.local` for local development and through AWS Amplify's Environment Variables panel for production.
 
----
 
 ## 🚀 How to Fork & Run Locally
 
@@ -121,6 +116,3 @@ Open [http://localhost:3000](https://www.google.com/search?q=http://localhost:30
 
 *Architected & Engineered by [Joey (Yepeng) Zhu*](https://yepengzhu.com)
 
-```
-
----
