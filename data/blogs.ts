@@ -93,11 +93,11 @@ A real-time monitor dashboard was built to periodically fetch total requests (Dy
 
 ### 4.1 Responsive UI via Virtual Canvas Scaling
 - Problem: Absolute pixel positioning causes overlapping on smaller screens (13-inch) or excessive whitespace on larger monitors (Mac Pro). Media queries would break the aspect ratio.
-- Solution: Treated the entire desktop as a "Virtual Canvas" with an ideal base resolution (e.g., 1800x920). The system listens to resize events, dynamically calculates the scale ratio (Math.min(scaleX, scaleY, 1)), and applies a CSS transform: scale() to the parent container. Crucially, the calculated scale value is passed down to the react-rnd drag engine for underlying coordinate compensation, ensuring accurate mouse tracking across all resolutions.
+- Solution: Treated the entire desktop as a "Virtual Canvas" with an ideal base resolution (1800x920). The system listens to resize events, dynamically calculates the scale ratio (Math.min(scaleX, scaleY, 1)), and applies a CSS transform: scale() to the parent container. Crucially, the calculated scale value is passed down to the react-rnd drag engine for underlying coordinate compensation, ensuring accurate mouse tracking across all resolutions.
 
 ### 4.2 Mobile Touch Event Clash
 - Problem: Minimize/Close buttons occasionally failed on mobile devices. The visual active state triggered, but the business logic did not.
-- Solution: The 300ms click delay on mobile browsers, combined with the drag library intercepting touchstart events (PreventDefault), swallowed the click events. We introduced an event exemption zone by adding a cancel-drag class to interactive buttons. Furthermore, we replaced the traditional onClick with a mobile-specific onTouchEnd binding, achieving zero-delay, precise touch responses.
+- Solution: The 300ms click delay on mobile browsers, combined with the drag library intercepting touchstart events (preventing default), swallowed the click events. We introduced an event exemption zone by adding a cancel-drag class to interactive buttons. Furthermore, we replaced the traditional onClick with a mobile-specific onTouchEnd binding, achieving zero-delay, precise touch responses.
 
 ### 4.3 Bypassing Cross-Origin iframe Restrictions (X-Frame-Options)
 - Problem: Embedding real GitHub and LinkedIn profiles via iframe was blocked by top-tier sites' anti-clickjacking security policies (X-Frame-Options: DENY).
@@ -105,14 +105,27 @@ A real-time monitor dashboard was built to periodically fetch total requests (Dy
   - GitHub: Polled the public GitHub REST API to fetch repositories dynamically and integrated github-readme-stats SVG visualizations to rebuild a functional terminal UI.
   - LinkedIn: Due to closed APIs, CSS animations (scanning laser lines) and React were used to render a highly simulated Digital ID Card, providing secure external links while maintaining the desktop's immersive experience.
 
-## 5. CI/CD & Environment Isolation
+## 5. Architectural Highlights (The "Hardcore" Details)
+
+### 5.1 Zero-Dependency Deployment
+A common pitfall in Serverless development is bloated deployment packages. The backend of Joey OS is a monolithic Python Lambda that strictly utilizes the native 'urllib.request' module. By shedding third-party dependencies (e.g., 'requests' or official SDKs), it completely eliminates the need for '.zip' uploads or Lambda Layers. This "copy-paste-ready" approach drastically lowers the barrier for open-source adoption and deployment.
+
+### 5.2 Hand-Rolled HMAC Signatures
+Rather than utilizing the bulky official Pusher SDK, the WebSocket authentication and broadcasting logic were engineered from scratch. By manually assembling the HTTP request and generating SHA256 signatures using Python's native 'hashlib' and 'hmac', the system maintains an extremely small runtime footprint while proving a profound grasp of cryptographic authentication protocols and RESTful standards.
+
+### 5.3 VPC-Less Serverless Architecture
+Implementing rate-limiting usually dictates the use of Redis. However, deploying AWS ElastiCache necessitates complex VPC configurations, which inadvertently introduce Lambda cold-start latency and continuous billing. Joey OS circumvents this by adopting Upstash Serverless Redis, communicating entirely via REST APIs over the public internet. This delivers the high-concurrency benefits of Redis without the VPC overhead.
+
+## 6. CI/CD & Environment Isolation
 The project leverages AWS Amplify for automated deployment. To clearly distinguish between Stage and Production environments without hardcoding CSS changes (which causes merge conflicts), the NEXT_PUBLIC_APP_ENV environment variable was introduced. By injecting different values for the main and stage branches in the Amplify console, Next.js dynamically switches background colors and titles at runtime, achieving elegant environment isolation with low maintenance cost.
 
-## 6. Security, Privacy & Open Source Adaptability
-Exposing direct-to-mobile WebSockets and LLM APIs to the public internet introduces critical security vectors, including DDOS attacks and token exhaustion. 
+## 7. Security, Privacy & Open Source Adaptability
+Exposing direct-to-mobile WebSockets and LLM APIs to the public internet introduces critical security vectors, including DDOS attacks and token exhaustion.
 
-- Rate Limiting via Redis: To mitigate abuse, I implemented a sliding-window rate limiter using Upstash Serverless Redis at the API Gateway level. Client IP addresses are hashed and tracked; any requests exceeding the threshold immediately receive a '429 Too Many Requests' response, safeguarding the backend architecture.
+- Rate Limiting via Redis: To mitigate abuse, I implemented a sliding-window rate limiter using Upstash Serverless Redis at the API Gateway level. Client IP addresses are tracked; any requests exceeding the threshold immediately receive a '429 Too Many Requests' response, safeguarding the backend architecture.
 - Secrets Management & Adaptability: Joey OS was designed to be easily forkable by the developer community. Strict adherence to privacy means zero hardcoded secrets exist in the codebase. All sensitive endpoints (AWS API Gateway URLs, Pusher Keys) are injected at runtime via '.env.local' for local development and through AWS Amplify's Environment Variables panel for production. This ensures that anyone can clone the repository, plug in their own infrastructure values, and deploy their own Web OS securely without risking secret leakage.
-`  
-}
+
+## 8. Conclusion
+Building Joey OS was not just about assembling modern frontend frameworks like Next.js and React. It was a comprehensive engineering challenge that touched upon Serverless architecture design, state management, security mitigation, and responsive optimization. By making careful architectural trade-offs (like the Virtual Canvas scaling and event-driven data flows), the system delivers a high-performance, interactive personal operating system with extremely low maintenance overhead.`
+  }
 ];
