@@ -46,5 +46,66 @@ Results:
 - Concurrency handled gracefully with Goroutines.
 
 Node.js is still my go-to for I/O heavy, rapid prototyping, but Go's performance in CPU-bound microservices is unmatched.`
+  },
+  {
+    id: '3',
+    filename: 'joey_os_architecture_review.txt',
+    title: 'Building a Serverless Web OS: An Architectural Review of Joey OS',
+    date: '2026-03-07',
+    content: `[ SYSTEM LOG: 2026-03-07 ]
+
+# Building a Serverless Web OS: An Architectural Review of Joey OS
+
+## 1. Background & Objectives
+Traditional static portfolios often fail to demonstrate a developer's system design and full-stack engineering capabilities. Joey OS was built to address this by creating a highly interactive Web Desktop Operating System (Web OS) that serves as a resume, technical blog, and real-time communication platform.
+
+Core objectives included:
+- Multi-Window State Management: Implementing complex desktop-grade interactions (drag-and-drop, z-index layering, minimization).
+- Full-Stack & Cloud-Native: Utilizing a decoupled frontend and Serverless backend for high availability and cost-efficiency.
+- Real-Time & AI Integration: Incorporating full-duplex communication and Large Language Models (LLMs).
+- Responsive Design: Ensuring a consistent and complete interactive experience across various desktop resolutions and mobile devices.
+
+## 2. Technology Stack
+- Frontend: Next.js (App Router), React 19, Tailwind CSS, TypeScript.
+- Window Engine: react-rnd (for drag and resize management).
+- Serverless Backend: AWS API Gateway, AWS Lambda (Python), AWS DynamoDB.
+- Real-Time Communication: Pusher (WebSockets), Telegram Bot API.
+- AI & Security: DeepSeek LLM API, Upstash Serverless Redis (Rate Limiting).
+- DevOps: AWS Amplify.
+
+## 3. Core Modules & System Design
+
+### 3.1 Window Management & State Machine
+The desktop application state is managed by a centralized Record<string, AppState> state machine in the frontend architecture. It tracks the open/minimized status of each application and utilizes an activeWindow mechanism to dynamically allocate z-index, mimicking native OS window layering.
+
+### 3.2 Event-Driven Real-Time Communication (Live Chat)
+To enable real-time interaction between visitors and the admin, the system bypasses traditional HTTP polling to prevent read/write amplification on the database under concurrent loads.
+- Data Flow: Visitor sends message -> AWS API Gateway -> Lambda (saves to DynamoDB) -> Telegram API (pushes to Admin's mobile).
+- Bidirectional Push: Admin replies via Telegram -> Webhook triggers API Gateway -> Lambda extracts Session ID and invokes Pusher API -> Pusher delivers the message to the visitor's browser in sub-seconds via WebSockets.
+
+### 3.3 AI Agent Integration & API Security
+DeepSeek API is integrated with a predefined System Prompt to build a context-aware resume assistant. To mitigate LLM API costs and prevent malicious abuse, Upstash Redis was introduced into the request pipeline to implement sliding-window rate limiting based on client IPs. Exceeding the threshold triggers a 429 status code at the API Gateway level.
+
+### 3.4 System Observability
+A real-time monitor dashboard was built to periodically fetch total requests (DynamoDB) and blocked threats (Redis). Combined with simulated frontend network latency (Ping) and rolling terminal logs, it provides a transparent view of the backend's health.
+
+## 4. Key Technical Challenges & Solutions
+
+### 4.1 Responsive UI via Virtual Canvas Scaling
+- Problem: Absolute pixel positioning causes overlapping on smaller screens (13-inch) or excessive whitespace on larger monitors (Mac Pro). Media queries would break the aspect ratio.
+- Solution: Treated the entire desktop as a "Virtual Canvas" with an ideal base resolution (e.g., 1800x920). The system listens to resize events, dynamically calculates the scale ratio (Math.min(scaleX, scaleY, 1)), and applies a CSS transform: scale() to the parent container. Crucially, the calculated scale value is passed down to the react-rnd drag engine for underlying coordinate compensation, ensuring accurate mouse tracking across all resolutions.
+
+### 4.2 Mobile Touch Event Clash
+- Problem: Minimize/Close buttons occasionally failed on mobile devices. The visual active state triggered, but the business logic did not.
+- Solution: The 300ms click delay on mobile browsers, combined with the drag library intercepting touchstart events (PreventDefault), swallowed the click events. We introduced an event exemption zone by adding a cancel-drag class to interactive buttons. Furthermore, we replaced the traditional onClick with a mobile-specific onTouchEnd binding, achieving zero-delay, precise touch responses.
+
+### 4.3 Bypassing Cross-Origin iframe Restrictions (X-Frame-Options)
+- Problem: Embedding real GitHub and LinkedIn profiles via iframe was blocked by top-tier sites' anti-clickjacking security policies (X-Frame-Options: DENY).
+- Solution: Adopted an "API Extraction + Frontend Redraw" strategy.
+  - GitHub: Polled the public GitHub REST API to fetch repositories dynamically and integrated github-readme-stats SVG visualizations to rebuild a functional terminal UI.
+  - LinkedIn: Due to closed APIs, CSS animations (scanning laser lines) and React were used to render a highly simulated Digital ID Card, providing secure external links while maintaining the desktop's immersive experience.
+
+## 5. CI/CD & Environment Isolation
+The project leverages AWS Amplify for automated deployment. To clearly distinguish between Stage and Production environments without hardcoding CSS changes (which causes merge conflicts), the NEXT_PUBLIC_APP_ENV environment variable was introduced. By injecting different values for the main and stage branches in the Amplify console, Next.js dynamically switches background colors and titles at runtime, achieving elegant environment isolation with low maintenance cost.`
   }
 ];
