@@ -106,6 +106,13 @@ A real-time monitor dashboard was built to periodically fetch total requests (Dy
   - LinkedIn: Due to closed APIs, CSS animations (scanning laser lines) and React were used to render a highly simulated Digital ID Card, providing secure external links while maintaining the desktop's immersive experience.
 
 ## 5. CI/CD & Environment Isolation
-The project leverages AWS Amplify for automated deployment. To clearly distinguish between Stage and Production environments without hardcoding CSS changes (which causes merge conflicts), the NEXT_PUBLIC_APP_ENV environment variable was introduced. By injecting different values for the main and stage branches in the Amplify console, Next.js dynamically switches background colors and titles at runtime, achieving elegant environment isolation with low maintenance cost.`
-  }
+The project leverages AWS Amplify for automated deployment. To clearly distinguish between Stage and Production environments without hardcoding CSS changes (which causes merge conflicts), the NEXT_PUBLIC_APP_ENV environment variable was introduced. By injecting different values for the main and stage branches in the Amplify console, Next.js dynamically switches background colors and titles at runtime, achieving elegant environment isolation with low maintenance cost.
+
+## 6. Security, Privacy & Open Source Adaptability
+Exposing direct-to-mobile WebSockets and LLM APIs to the public internet introduces critical security vectors, including DDOS attacks and token exhaustion. 
+
+- Rate Limiting via Redis: To mitigate abuse, I implemented a sliding-window rate limiter using Upstash Serverless Redis at the API Gateway level. Client IP addresses are hashed and tracked; any requests exceeding the threshold immediately receive a '429 Too Many Requests' response, safeguarding the backend architecture.
+- Secrets Management & Adaptability: Joey OS was designed to be easily forkable by the developer community. Strict adherence to privacy means zero hardcoded secrets exist in the codebase. All sensitive endpoints (AWS API Gateway URLs, Pusher Keys) are injected at runtime via '.env.local' for local development and through AWS Amplify's Environment Variables panel for production. This ensures that anyone can clone the repository, plug in their own infrastructure values, and deploy their own Web OS securely without risking secret leakage.
+`  
+}
 ];
