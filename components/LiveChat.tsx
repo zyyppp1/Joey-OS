@@ -83,6 +83,9 @@ export default function LiveChat() {
 
     connectPusher();
 
+    // 组件挂载时也拉取一次，补全窗口关闭期间错过的消息（如 Joey 在窗口关闭时回复）
+    fetchMissedMessages();
+
     // 手机切后台再切回时：重连 Pusher + 补全错过的消息
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
