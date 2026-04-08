@@ -8,46 +8,97 @@ type ChatMessage = {
   text: string;
 };
 
-// 💡 关键修改 1：模块级变量，页面刷新才重置，关闭窗口不重置！
+// 模块级变量：页面刷新才重置，关闭/重开窗口不影响
 let globalSessionId = '';
+let globalMessages: ChatMessage[] = [
+  { sender: 'joey', text: '>>> SECURE CHANNEL ESTABLISHED <<<' },
+  { sender: 'joey', text: 'Data Flow: Web -> AWS API Gateway -> AWS Lambda -> Telegram API.' },
+  { sender: 'joey', text: 'Drop a message below! It will ping my phone directly. If I am available, I will reply via Pusher WebSockets in real-time. 😉' }
+];
+
+const AWS_API_URL = process.env.NEXT_PUBLIC_AWS_API_URL || '';
 
 export default function LiveChat() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { sender: 'joey', text: '>>> SECURE CHANNEL ESTABLISHED <<<' },
-    { sender: 'joey', text: 'Data Flow: Web -> AWS API Gateway -> AWS Lambda -> Telegram API.' },
-    { sender: 'joey', text: 'Drop a message below! It will ping my phone directly. If I am available, I will reply via Pusher WebSockets in real-time. 😉' }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>(globalMessages);
   const [input, setInput] = useState('');
   const [sessionId, setSessionId] = useState('');
   const [isSending, setIsSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  const AWS_API_URL = process.env.NEXT_PUBLIC_AWS_API_URL || '';
+  const pusherRef = useRef<Pusher | null>(null);
 
   useEffect(() => {
-    // 💡 关键修改 2：如果全局 ID 是空的，才生成新的；否则复用之前的！
     if (!globalSessionId) {
       globalSessionId = Math.random().toString(36).substring(2, 10);
     }
     setSessionId(globalSessionId);
 
-    // 初始化 Pusher 长连接
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY || '', {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || '',
-    });
+    // 建立 Pusher 连接，封装成函数方便重连复用
+    const connectPusher = () => {
+      if (pusherRef.current) {
+        pusherRef.current.disconnect();
+      }
+      const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY || '', {
+        cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || '',
+      });
+      const channel = pusher.subscribe(`session-${globalSessionId}`);
+      channel.bind('new_message', (data: ChatMessage) => {
+        setMessages(prev => {
+          const next = [...prev, data];
+          globalMessages = next;
+          return next;
+        });
+      });
+      pusherRef.current = pusher;
+    };
 
-    const channel = pusher.subscribe(`session-${globalSessionId}`);
-    
-    channel.bind('new_message', function (data: ChatMessage) {
-      setMessages((prev) => [...prev, data]);
-    });
+    // 从 DynamoDB 拉取后端存档，补全手机切后台期间错过的消息
+    const fetchMissedMessages = async () => {
+      if (!globalSessionId || !AWS_API_URL) return;
+      try {
+        const res = await fetch(AWS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_live_messages', session_id: globalSessionId })
+        });
+        const data = await res.json();
+        if (!data.messages || data.messages.length === 0) return;
+
+        setMessages(prev => {
+          const knownTexts = new Set(prev.map(m => m.text));
+          const missed = data.messages
+            .map((m: { Sender: string; Text: string }) => ({
+              sender: m.Sender as 'visitor' | 'joey',
+              text: m.Text
+            }))
+            .filter((m: ChatMessage) => !knownTexts.has(m.text));
+          if (missed.length === 0) return prev;
+          const next = [...prev, ...missed];
+          globalMessages = next;
+          return next;
+        });
+      } catch (e) {
+        console.error('Failed to fetch missed messages', e);
+      }
+    };
+
+    connectPusher();
+
+    // 手机切后台再切回时：重连 Pusher + 补全错过的消息
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        connectPusher();
+        fetchMissedMessages();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      channel.unbind_all();
-      channel.unsubscribe();
-      pusher.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      pusherRef.current?.disconnect();
+      pusherRef.current = null;
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 自动滚动到底部
   useEffect(() => {
@@ -60,22 +111,30 @@ export default function LiveChat() {
 
     const userText = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { sender: 'visitor', text: userText }]);
+    setMessages(prev => {
+      const next = [...prev, { sender: 'visitor' as const, text: userText }];
+      globalMessages = next;
+      return next;
+    });
     setIsSending(true);
 
     try {
       await fetch(AWS_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          action: 'send_telegram', 
-          session_id: sessionId, 
-          message: userText 
+        body: JSON.stringify({
+          action: 'send_telegram',
+          session_id: sessionId,
+          message: userText
         })
       });
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { sender: 'joey', text: '[ERR] Connection to Telegram failed.' }]);
+      setMessages(prev => {
+        const next = [...prev, { sender: 'joey' as const, text: '[ERR] Connection to Telegram failed.' }];
+        globalMessages = next;
+        return next;
+      });
     } finally {
       setIsSending(false);
     }
@@ -83,7 +142,7 @@ export default function LiveChat() {
 
   return (
     <div className="flex flex-col h-full bg-black text-[#4ade80] font-mono text-sm border-2 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-      
+
       {/* 头部状态 */}
       <div className="bg-blue-600 text-white font-bold p-2 text-center uppercase tracking-widest text-xs flex justify-between">
         <span>● SECURE COMMS LINK</span>

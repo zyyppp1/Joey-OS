@@ -7,6 +7,7 @@ import time
 import hmac
 import hashlib
 from datetime import datetime
+from boto3.dynamodb.conditions import Key
 
 # 连接数据库
 dynamodb = boto3.resource('dynamodb')
@@ -46,7 +47,25 @@ def lambda_handler(event, context):
             return build_response(200, {"status": "sent"})
 
         # ==========================================
-        # 🟢 3. 监控大屏：真实数据拉取
+        # 🟢 3. 实时聊天：拉取历史记录（手机切换app回来后补全消息）
+        # ==========================================
+        if action == 'get_live_messages':
+            session_id = body.get('session_id', '')
+            if not session_id:
+                return build_response(400, {"error": "session_id required"})
+            try:
+                resp = live_table.query(
+                    KeyConditionExpression=Key('SessionId').eq(session_id)
+                )
+                items = resp.get('Items', [])
+                items.sort(key=lambda x: x.get('Timestamp', ''))
+                return build_response(200, {"messages": items})
+            except Exception as e:
+                print(f"get_live_messages error: {e}")
+                return build_response(500, {"error": "Failed to fetch messages"})
+
+        # ==========================================
+        # 🟢 4. 监控大屏：真实数据拉取
         # ==========================================
         if action == 'get_metrics':
             try:

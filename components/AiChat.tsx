@@ -8,12 +8,15 @@ type Message = {
   content: string;
 };
 
+// 模块级变量：页面刷新才重置，关闭/重开窗口不影响
+let globalHistory: Message[] = [
+  { role: 'assistant', content: 'SYSTEM: DeepSeek Neural Engine Initialized.' },
+  { role: 'assistant', content: 'Hi! I am Joey\'s AI Assistant. My mission is to help you understand why Joey is the perfect fit for your team. Ask me anything about his tech stack, work experience, or projects!' }
+];
+
 export default function AiChat() {
   const [input, setInput] = useState('');
-  const [history, setHistory] = useState<Message[]>([
-    { role: 'assistant', content: 'SYSTEM: DeepSeek Neural Engine Initialized.' },
-    { role: 'assistant', content: 'Hi! I am Joey\'s AI Assistant. My mission is to help you understand why Joey is the perfect fit for your team. Ask me anything about his tech stack, work experience, or projects!' }
-  ]);
+  const [history, setHistory] = useState<Message[]>(globalHistory);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -31,7 +34,7 @@ export default function AiChat() {
 
     const userText = input.trim();
     setInput('');
-    setHistory(prev => [...prev, { role: 'user', content: userText }]);
+    setHistory(prev => { const next = [...prev, { role: 'user' as const, content: userText }]; globalHistory = next; return next; });
     setIsTyping(true);
 
     try {
@@ -43,7 +46,7 @@ export default function AiChat() {
 
       // 拦截 Redis 的 429 限流报错
       if (response.status === 429) {
-        setHistory(prev => [...prev, { role: 'assistant', content: '[系统警告] 请求过于频繁！请喝杯茶，稍后再试。' }]);
+        setHistory(prev => { const next = [...prev, { role: 'assistant' as const, content: '[系统警告] 请求过于频繁！请喝杯茶，稍后再试。' }]; globalHistory = next; return next; });
         setIsTyping(false);
         return;
       }
@@ -51,11 +54,11 @@ export default function AiChat() {
       if (!response.ok) throw new Error('API Request Failed');
 
       const data = await response.json();
-      setHistory(prev => [...prev, { role: 'assistant', content: data.reply }]);
+      setHistory(prev => { const next = [...prev, { role: 'assistant' as const, content: data.reply }]; globalHistory = next; return next; });
 
     } catch (error) {
       console.error(error);
-      setHistory(prev => [...prev, { role: 'assistant', content: '[系统错误] 无法连接到云端神经引擎，请检查网络。' }]);
+      setHistory(prev => { const next = [...prev, { role: 'assistant' as const, content: '[系统错误] 无法连接到云端神经引擎，请检查网络。' }]; globalHistory = next; return next; });
     } finally {
       setIsTyping(false);
     }
