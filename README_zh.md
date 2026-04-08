@@ -45,13 +45,76 @@
 - **挑战:** 在移动端测试时，窗口的最小化/关闭按钮偶尔失效。按钮的视觉点击效果已触发，但业务逻辑未执行。
 - **解决方案:** 经分析，移动端浏览器的 300ms 点击延迟，结合底层拖拽库拦截了 `touchstart` 事件（`preventDefault`），导致点击事件被意外吞噬。我通过为交互按钮添加 `cancel-drag` 类名，引入了“事件豁免区”。同时，将传统的 `onClick` 替换为移动端专属的 `onTouchEnd` 绑定，实现了零延迟、精确的触控响应。
 
-### 3. 突破跨域 iframe 嵌套限制
+### 3. Live Chat — 移动端 WebSocket 断连与消息丢失
+
+- **挑战:** 在跨设备测试中发现了一个隐蔽但关键的 Bug。当访客用**手机 Chrome** 打开网站后，切换到 Telegram 查看消息，Joey 回复后再切回 Chrome——回复始终不显示。而完全相同的操作在桌面端（Mac Chrome）则完全正常。
+
+  | 测试场景 | 结果 | 原因 |
+  |---|---|---|
+  | Mac Chrome 开网页 → 手机 Telegram 回复 | ✅ 正常 | 桌面浏览器一直保持活跃 |
+  | Mac Chrome 开网页 → Mac Telegram 回复 | ✅ 正常 | 桌面浏览器一直保持活跃 |
+  | 手机 Chrome 开网页 → Mac Telegram 回复（无切换 App） | ✅ 正常 | 浏览器始终在前台 |
+  | **手机 Chrome 开网页 → 切换至 Telegram → 回复** | ❌ 失败 | **OS 将后台标签页挂起** |
+
+- **根本原因:** iOS 和 Android 在用户切换 App 的瞬间，就会激进地挂起后台浏览器标签页。这会触发 Page Visibility API（`visibilityState → 'hidden'`），OS 在数秒内切断后台网络活动——这远早于 Pusher 的心跳超时检测。当 Joey 的回复通过 Pusher 推送时，WebSocket 频道已无活跃订阅者。由于 **Pusher 不缓存未送达的事件**，消息永久丢失。React 组件的 state 依然完整，但 WebSocket 连接已静默死亡。
+
+- **解决方案:** 实现了双层恢复机制：
+  1. **重连层：** 添加 `visibilitychange` 事件监听。当页面回到前台（`'visible'`）时，立即断开已死的旧 Pusher 实例，重新建立 WebSocket 连接并重新订阅 session 频道。
+  2. **消息补全层：** 同时调用新增的 `get_live_messages` Lambda 接口，按 `session_id` 查询 DynamoDB 中所有存档消息。由于每条消息（访客消息和 Joey 的回复）在发送时都会实时写入 DynamoDB，这使其成为可靠的离线缓冲区。前端将返回的消息与本地 state 进行合并（按消息文本去重），确保无论后台停留多久，消息都不会丢失。
+
+### 4. 突破跨域 iframe 嵌套限制
 - **挑战:** 尝试通过 `iframe` 直接内嵌真实的 GitHub 和 LinkedIn 个人主页时，被顶级站点的防点击劫持安全策略（`X-Frame-Options: DENY`）拦截。
 - **解决方案:** 采用了“API 提取 + 前端重绘”的策略。
   - **GitHub:** 轮询公开的 GitHub REST API 动态拉取仓库数据，并集成 `github-readme-stats` 的 SVG 可视化图像，重构了一个功能完整的极客风终端 UI。
   - **LinkedIn:** 利用 CSS 动画（激光扫描线）和 React 渲染了一张高仿真的数字名片，提供安全外链的同时，保持了桌面系统的沉浸式体验。
 
 ---
+
+## 💬 Live Chat — 完整工作流程
+
+Live Chat 功能通过无服务器事件驱动管道，实现了网站访客与 Joey（通过 Telegram）之间的实时双向通讯。
+
+```
+访客（浏览器）                         AWS 后端                      Joey（Telegram）
+      |                                   |                              |
+      |  1. 输入并发送消息                |                              |
+      |  POST { action: send_telegram,    |                              |
+      |         session_id, message }     |                              |
+      | --------------------------------> |                              |
+      |                                   |  2. save_live_message()      |
+      |                                   |     → DynamoDB（访客消息）   |
+      |                                   |                              |
+      |                                   |  3. send_to_telegram()       |
+      |                                   |     "📩 新网页消息!          |
+      |                                   |      Session: ABC123XY       |
+      |                                   |      Visitor: 你好!"         |
+      |                                   | ---------------------------> |
+      |                                   |                              |  4. Joey 查看
+      |                                   |                              |     并回复
+      |                                   |  5. Telegram Webhook 回调    |
+      |                                   | <--------------------------- |
+      |                                   |                              |
+      |                                   |  6. handle_telegram_webhook()|
+      |                                   |     从原始消息中解析         |
+      |                                   |     session_id               |
+      |                                   |     save_live_message()      |
+      |                                   |     → DynamoDB（Joey 回复）  |
+      |                                   |                              |
+      |                                   |  7. trigger_pusher()         |
+      |                                   |     channel: session-ABC123XY|
+      |                                   |     event: new_message       |
+      |  8. Pusher WebSocket 推送         |                              |
+      | <-------------------------------- |                              |
+      |                                   |                              |
+      |  9. channel.bind('new_message')   |                              |
+      |     setMessages() → UI 更新       |                              |
+```
+
+**关键设计决策：**
+
+- **Session ID 作为路由键：** 每个访客 session 生成一个唯一 ID（首次加载时生成，以模块级变量存储，关闭窗口不重置，仅页面刷新才重置）。该 ID 被嵌入 Telegram 消息文本中，Joey 回复时 Lambda 即可解析并将 Pusher 推送路由到对应的浏览器标签页。
+- **DynamoDB 作为持久化缓冲区：** 每条消息——访客消息和 Joey 回复——均在发送瞬间写入 DynamoDB。这将消息投递与持久化解耦，也使上述移动端断线恢复成为可能。
+- **聊天记录跨窗口保持：** 消息数组存储在模块级 JavaScript 变量中（位于 React 组件 state 之外）。关闭并重新打开 Live Chat 窗口，完整对话记录得以恢复；只有整页刷新才会重置。
 
 ## 🔒 安全、隐私与开源适配
 

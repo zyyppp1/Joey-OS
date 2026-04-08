@@ -43,12 +43,75 @@ This project adopts a **Serverless & Event-Driven Architecture** to ensure high 
 - **Problem:** During mobile testing, the Minimize/Close buttons occasionally failed. The visual active state triggered, but the business logic did not execute.
 - **Solution:** Analysis revealed that the 300ms click delay on mobile browsers, combined with the drag library intercepting `touchstart` events (`preventDefault`), swallowed the click events. I introduced an event exemption zone by adding a `cancel-drag` class to interactive buttons. Furthermore, I replaced the traditional `onClick` with a mobile-specific `onTouchEnd` binding, achieving zero-delay, precise touch responses.
 
-### 3. Bypassing Cross-Origin iframe Restrictions
+### 3. Live Chat — Mobile WebSocket Disconnect & Message Loss
+
+- **Problem:** A subtle but critical bug was discovered during cross-device testing. When a visitor opened the site on **mobile Chrome**, switched to the Telegram app (to observe the incoming message), then came back to Chrome after a reply was sent — the reply never appeared. The exact same scenario worked perfectly on desktop (Mac Chrome).
+
+  | Scenario | Result | Reason |
+  |---|---|---|
+  | Mac Chrome open → reply from phone Telegram | ✅ Works | Desktop browser stays active |
+  | Mac Chrome open → reply from Mac Telegram | ✅ Works | Desktop browser stays active |
+  | Mobile Chrome open → reply from Mac Telegram (no app switch) | ✅ Works | Browser stayed in foreground |
+  | **Mobile Chrome open → switch to Telegram → reply** | ❌ Fails | **OS suspends background tab** |
+
+- **Root Cause:** iOS and Android aggressively suspend background browser tabs the moment a user switches apps. This triggers the Page Visibility API (`visibilityState → 'hidden'`), and the OS cuts off background network activity within seconds — far faster than Pusher's own heartbeat timeout can detect. When Joey's reply was pushed via Pusher, the WebSocket channel had no active subscriber, and since **Pusher does not buffer undelivered events**, the message was permanently lost. React component state was intact, but the WebSocket connection was silently dead.
+
+- **Solution:** A two-layer recovery mechanism was implemented:
+  1. **Reconnect layer:** A `visibilitychange` event listener was added. When the page returns to the foreground (`'visible'`), the existing dead Pusher instance is immediately disconnected and a fresh WebSocket connection is re-established, re-subscribing to the session channel.
+  2. **Message recovery layer:** Simultaneously, a new `get_live_messages` Lambda action queries DynamoDB for all stored messages under the current `session_id`. Since every message (visitor and Joey alike) is persisted to DynamoDB at send-time, this acts as a reliable offline buffer. The frontend merges returned messages against local state (deduplication by text), ensuring no message is ever lost regardless of how long the tab was backgrounded.
+
+### 4. Bypassing Cross-Origin iframe Restrictions
 - **Problem:** Embedding my real GitHub and LinkedIn profiles directly via `iframe` was blocked by top-tier sites' anti-clickjacking security policies (`X-Frame-Options: DENY`).
 - **Solution:** I adopted an "API Extraction + Frontend Redraw" strategy.
   - **GitHub:** Polled the public GitHub REST API to fetch repositories dynamically and integrated `github-readme-stats` SVG visualizations to rebuild a functional, hacker-style terminal UI.
   - **LinkedIn:** Used CSS animations (scanning laser lines) and React to render a highly simulated Digital ID Card, providing secure external links while maintaining the desktop's immersive experience.
 
+
+## 💬 Live Chat — Full Workflow
+
+The Live Chat feature enables real-time, bidirectional messaging between a website visitor and Joey via Telegram, powered by a serverless event-driven pipeline.
+
+```
+Visitor (Browser)                    AWS Backend                  Joey (Telegram)
+      |                                   |                              |
+      |  1. Type & send message           |                              |
+      |  POST { action: send_telegram,    |                              |
+      |         session_id, message }     |                              |
+      | --------------------------------> |                              |
+      |                                   |  2. save_live_message()      |
+      |                                   |     → DynamoDB (visitor msg) |
+      |                                   |                              |
+      |                                   |  3. send_to_telegram()       |
+      |                                   |     "📩 New Web Message!     |
+      |                                   |      Session: ABC123XY       |
+      |                                   |      Visitor: Hello!"        |
+      |                                   | ---------------------------> |
+      |                                   |                              |  4. Joey reads
+      |                                   |                              |     and replies
+      |                                   |  5. Telegram webhook POST    |
+      |                                   | <--------------------------- |
+      |                                   |                              |
+      |                                   |  6. handle_telegram_webhook()|
+      |                                   |     Parse session_id from    |
+      |                                   |     original message text    |
+      |                                   |     save_live_message()      |
+      |                                   |     → DynamoDB (joey msg)    |
+      |                                   |                              |
+      |                                   |  7. trigger_pusher()         |
+      |                                   |     channel: session-ABC123XY|
+      |                                   |     event: new_message       |
+      |  8. Pusher WebSocket push         |                              |
+      | <-------------------------------- |                              |
+      |                                   |                              |
+      |  9. channel.bind('new_message')   |                              |
+      |     setMessages() → UI updates    |                              |
+```
+
+**Key design decisions:**
+
+- **Session ID as the routing key:** Every visitor session gets a unique ID (generated on first load, stored as a module-level variable to survive window close/reopen without page refresh). This ID is embedded into the Telegram message text, so when Joey replies, Lambda can parse it and route the Pusher push to the exact browser tab.
+- **DynamoDB as the persistent buffer:** Every message — visitor and Joey alike — is written to DynamoDB at the moment it is sent. This decouples delivery from persistence, enabling the mobile reconnection recovery described above.
+- **Chat history persists across window close:** The messages array is stored in a module-level JavaScript variable (outside React component state). Closing and reopening the Live Chat window restores the full conversation; only a full page refresh resets it.
 
 ## 🔒 Security, Privacy & Open Source Adaptability
 
