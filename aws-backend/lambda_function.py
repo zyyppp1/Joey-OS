@@ -6,13 +6,15 @@ import uuid
 import time
 import hmac
 import hashlib
+import re
 from datetime import datetime
 from boto3.dynamodb.conditions import Key
 
 # 连接数据库
 dynamodb = boto3.resource('dynamodb')
 chat_table = dynamodb.Table('JoeyChatLogs')
-live_table = dynamodb.Table('JoeyLiveChats') 
+live_table = dynamodb.Table('JoeyLiveChats')
+unknown_table = dynamodb.Table('JoeyAIUnknown')
 
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')
@@ -65,7 +67,20 @@ def lambda_handler(event, context):
                 return build_response(500, {"error": "Failed to fetch messages"})
 
         # ==========================================
-        # 🟢 4. 监控大屏：真实数据拉取
+        # 🟢 4. AI 助手：查询未解答问题（Joey 用来补充知识库）
+        # ==========================================
+        if action == 'get_unknown_questions':
+            try:
+                resp = unknown_table.scan()
+                items = resp.get('Items', [])
+                items.sort(key=lambda x: x.get('Timestamp', ''), reverse=True)
+                return build_response(200, {"questions": items})
+            except Exception as e:
+                print(f"get_unknown_questions error: {e}")
+                return build_response(500, {"error": "Failed to fetch questions"})
+
+        # ==========================================
+        # 🟢 5. 监控大屏：真实数据拉取
         # ==========================================
         if action == 'get_metrics':
             try:
@@ -96,16 +111,73 @@ def lambda_handler(event, context):
                 return build_response(429, {"error": "Too Many Requests"})
 
             api_key = os.environ.get('LLM_API_KEY')
-            system_prompt = """你是 Joey (Yepeng Zhu) 的专属 AI 面试助手。解答他为什么适合这份工作。
-- 学历：University of Nottingham 硕士 (2024)；Beijing Union University 学士 (2023)。
-- 现任：SpinnrTech 后端工程师。曾任：Everbridge QA。
-要求：自信、专业、简短。"""
-            
+            system_prompt = """You are the AI assistant for Joey (Yepeng Zhu). Your sole mission is to help visitors understand Joey's background and why he is a strong candidate.
+
+STRICT RULES — NEVER BREAK THESE:
+1. ONLY use facts listed in the KNOWLEDGE BASE below. NEVER invent, guess, or extrapolate ANY information not explicitly provided.
+2. If asked about something not covered in the knowledge base, be honest: say you don't have that detail yet, and suggest the visitor ask Joey directly via the Live Chat window. Then append [[NEEDS_INFO: <brief topic in English>]] on a new line at the very end of your reply.
+3. NEVER discuss salary, compensation, pay expectations, or any related topic under any circumstances. If asked, say this is a topic for direct conversation and redirect to Live Chat.
+4. Respond in the same language the visitor uses. Be confident, professional, and concise.
+
+--- KNOWLEDGE BASE ---
+
+PERSONAL
+- Full name: Yepeng Zhu (Joey)
+- Based in the UK
+
+EDUCATION
+- BSc: Beijing Union University — graduated 2023
+- MSc: University of Nottingham — graduated 2024
+
+WORK EXPERIENCE
+
+QA Engineer @ Everbridge (July 2022 – March 2023)
+- Wrote automated test scripts covering frontend and mobile (App) testing
+- Tested from the internal employee portal with a customer-facing perspective to ensure end-to-end quality
+- Tools: Python, Selenium, JavaScript for test automation; Postman for backend API testing
+- Validated API response data formats and content accuracy
+
+Backend Engineer @ SpinnrTech (July 2025 – April 2026)
+- Worked on a B2B aggregated gaming platform
+- Core responsibility: third-party API integration and interface development
+- Ensured transaction flow security and stability
+- Built a mock aggregation platform that simulates third-party vendors — enabling independent API testing on SpinnrTech's side to quickly isolate whether issues originated from the vendor or internal systems
+- Tech stack: PostgreSQL (database), Redis (caching), Microservices architecture
+- Languages: Lua (game backend APIs), Node.js (mock platform & API testing), Go (transaction APIs)
+- Participated in deployment; used Git for version control
+
+SIDE PROJECTS
+- Joey OS (this website): A serverless interactive web desktop portfolio. Built with Next.js, AWS Lambda, DynamoDB, Pusher WebSockets, Telegram Bot API, DeepSeek LLM, and Upstash Redis. Demonstrates full-stack cloud-native engineering with real-world architectural decisions.
+- Visa Appointment Bot: Python + Selenium automation scripts to snipe French and US visa appointment slots. Served real users and sharpened skills in browser automation and handling real-world edge cases.
+
+CERTIFICATIONS
+- AWS Certified Solutions Architect – Associate
+
+CLOUD & INFRASTRUCTURE
+- AWS Lambda, Serverless architecture, web application deployment on AWS
+- Most personal projects are deployed on AWS
+
+CORE TECH STACK
+- JavaScript / Node.js
+- Go
+- Python
+- PostgreSQL, Redis
+- Microservices, REST APIs
+
+VISA & UK WORK RIGHTS
+- Currently holds: UK Graduate Visa (Post-Study Work visa)
+- Valid until: February 2027 — legally entitled to work full-time in the UK with no restrictions until then
+- After February 2027: may require employer sponsorship (Skilled Worker visa)
+
+TOPICS JOEY DOES NOT WANT DISCUSSED
+- Salary, compensation, or pay expectations — redirect all such questions to the Live Chat for a direct conversation with Joey
+"""
+
             api_url = 'https://api.deepseek.com/chat/completions'
             payload = {
                 "model": "deepseek-chat",
                 "messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_message}],
-                "max_tokens": 150, "temperature": 0.2
+                "max_tokens": 300, "temperature": 0.2
             }
             req = urllib.request.Request(
                 api_url, data=json.dumps(payload).encode('utf-8'),
@@ -114,6 +186,13 @@ def lambda_handler(event, context):
             with urllib.request.urlopen(req) as response:
                 result = json.loads(response.read().decode('utf-8'))
                 ai_reply = result['choices'][0]['message']['content']
+
+            # 检测 [[NEEDS_INFO: ...]] 标记，存档未知问题并从回复中剥离
+            needs_info_match = re.search(r'\[\[NEEDS_INFO:\s*(.+?)\]\]', ai_reply, re.IGNORECASE)
+            if needs_info_match:
+                topic = needs_info_match.group(1).strip()
+                save_unknown_question(user_message, topic)
+                ai_reply = re.sub(r'\s*\[\[NEEDS_INFO:[^\]]*\]\]', '', ai_reply).strip()
 
             # 存入 DynamoDB (AI 聊天记录)
             try:
@@ -168,6 +247,18 @@ def handle_telegram_webhook(body):
         print("Webhook Error:", e)
     
     return build_response(200, "OK")
+
+def save_unknown_question(user_question, topic):
+    """记录 AI 无法回答的问题，供 Joey 日后补充知识库"""
+    try:
+        unknown_table.put_item(Item={
+            'QuestionId': str(uuid.uuid4()),
+            'Timestamp': datetime.utcnow().isoformat(),
+            'UserQuestion': user_question,
+            'Topic': topic
+        })
+    except Exception as e:
+        print(f"save_unknown_question error: {e}")
 
 def trigger_pusher(channel, event, data):
     """手搓 Pusher WebSocket 签名发送"""
