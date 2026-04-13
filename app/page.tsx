@@ -99,7 +99,7 @@ export default function Home() {
       
       // 博客/Github 等后来打开的窗口，按照虚拟屏幕的百分比居中
       case 'blog': return { defaultX: virtualWidth * 0.15, defaultY: virtualHeight * 0.15, defaultWidth: virtualWidth * 0.7, defaultHeight: virtualHeight * 0.7 };
-      case 'github': return { defaultX: virtualWidth * 0.15, defaultY: virtualHeight * 0.15, defaultWidth: virtualWidth * 0.7, defaultHeight: virtualHeight * 0.7 };
+      case 'github': return { defaultX: virtualWidth * 0.3, defaultY: virtualHeight * 0.1, defaultWidth: virtualWidth * 0.35, defaultHeight: 667 };
       case 'linkedin': return { defaultX: (virtualWidth - 450) / 2, defaultY: (virtualHeight - 420) / 2, defaultWidth: 450, defaultHeight: 420 };
 
       default: return { defaultX: 100, defaultY: 100, defaultWidth: 400, defaultHeight: 300 };
