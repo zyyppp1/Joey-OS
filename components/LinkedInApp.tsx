@@ -70,7 +70,7 @@ export default function LinkedInApp() {
       {/* 底部闪烁的连接按钮 */}
       <div className="p-4 mt-auto">
         <a 
-          href="https://www.linkedin.com/in/yepeng-zhu/" // ⚠️ 请确保这是你真实的 LinkedIn 链接
+          href="https://www.linkedin.com/in/yepeng-zhu-9b0021314"
           target="_blank"
           className="block w-full text-center py-3 bg-amber-500 text-black font-black text-sm hover:bg-amber-400 active:bg-amber-600 transition-colors"
         >

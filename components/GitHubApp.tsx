@@ -44,17 +44,16 @@ export default function GitHubApp() {
   }, [logs]);
 
   return (
-    <div className="flex flex-col md:flex-row h-full font-mono text-sm text-[#4ade80] bg-black border-2 border-black overflow-hidden shadow-[inset_0px_0px_15px_rgba(74,222,128,0.2)]">
-      
-      {/* 左侧：实时 API 抓取终端 */}
-      <div className="w-full md:w-1/2 p-4 border-b md:border-b-0 md:border-r border-[#4ade80] flex flex-col">
+    <div className="flex flex-col h-full font-mono text-sm text-[#4ade80] bg-black border-2 border-black overflow-hidden shadow-[inset_0px_0px_15px_rgba(74,222,128,0.2)]">
+
+      {/* 实时 API 抓取终端 */}
+      <div className="flex-1 p-4 flex flex-col overflow-hidden">
         <h3 className="text-white font-bold mb-2 border-b border-[#4ade80] pb-1 uppercase tracking-widest">Target: @zyyppp1</h3>
-        
+
         <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-2 text-xs">
           {logs.map((log, idx) => (
             <div key={idx}>{log}</div>
           ))}
-          {/* 最近的项目列表 */}
           {repos.length > 0 && (
             <div className="mt-4 border border-[#4ade80] p-2 bg-[#4ade80]/10">
               <p className="text-white font-bold mb-2">[ RECENT COMMITS ]</p>
@@ -74,21 +73,11 @@ export default function GitHubApp() {
         </div>
       </div>
 
-      {/* 右侧：SVG 统计图卡片 */}
-      <div className="w-full md:w-1/2 p-4 flex flex-col items-center justify-center relative bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-900 to-black">
-        <p className="text-xs text-gray-500 absolute top-2 left-2">{">>>"} VISUALIZED_METRICS.SVG</p>
-        
-        {/* 使用 github-readme-stats，修正了透明背景参数 */}
-        <img 
-          src="https://github-readme-stats.vercel.app/api?username=zyyppp1&show_icons=true&hide_bg=true&title_color=ffffff&text_color=4ade80&icon_color=ffffff&hide_border=true" 
-          alt="GitHub Stats"
-          className="w-full max-w-[300px] drop-shadow-[0_0_10px_rgba(74,222,128,0.4)]"
-        />
-
-        <a 
-          href="https://github.com/zyyppp1" 
+      <div className="p-4 border-t border-[#4ade80]">
+        <a
+          href="https://github.com/zyyppp1"
           target="_blank"
-          className="mt-6 px-6 py-2 border-2 border-[#4ade80] text-[#4ade80] font-bold hover:bg-[#4ade80] hover:text-black transition-all shadow-[0_0_10px_rgba(74,222,128,0.5)]"
+          className="block w-full text-center px-6 py-2 border-2 border-[#4ade80] text-[#4ade80] font-bold hover:bg-[#4ade80] hover:text-black transition-all shadow-[0_0_10px_rgba(74,222,128,0.5)]"
         >
           [ ACCESS FULL REPOSITORY ]
         </a>

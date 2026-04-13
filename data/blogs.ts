@@ -48,6 +48,88 @@ Results:
 Node.js is still my go-to for I/O heavy, rapid prototyping, but Go's performance in CPU-bound microservices is unmatched.`
   },
   {
+    id: '4',
+    filename: 'livechat_mobile_debug.txt',
+    title: 'Debugging a Silent WebSocket Failure — A Live Interview Story',
+    date: '2026-04-13',
+    content: `[ SYSTEM LOG: 2026-04-13 ]
+
+# Debugging a Silent WebSocket Failure — A Live Interview Story
+
+## 0. The Embarrassing Part
+
+I was in an interview, showing my portfolio live on my phone. I opened the Live Chat, sent a message, switched to Telegram to demonstrate the real-time reply — and the reply never appeared.
+
+Smiled through it. Fixed it the same evening.
+
+## 1. The Feature
+
+Joey OS has a Live Chat feature: visitors message me from the browser, I reply via Telegram on my phone, and the reply appears in real-time via Pusher WebSockets. The data flow:
+
+  Visitor sends message
+    → POST to AWS API Gateway → Lambda
+    → save to DynamoDB + forward to Telegram
+
+  Joey replies on Telegram
+    → Telegram Webhook → Lambda
+    → save to DynamoDB + trigger Pusher push
+    → Pusher delivers to visitor browser via WebSocket
+
+It worked perfectly. Until I tested it on mobile.
+
+## 2. The Diagnosis — Test Matrix First, Code Later
+
+My first instinct was to grep through the code looking for the bug. I stopped myself.
+
+Instead, I isolated the one variable that mattered — platform — and ran four combinations:
+
+  Mac Chrome open → reply from phone Telegram       ✅
+  Mac Chrome open → reply from Mac Telegram         ✅
+  Mobile Chrome open → reply from Mac (no switch)   ✅
+  Mobile Chrome open → switch to Telegram → reply   ❌
+
+One variable. One failure. The act of switching apps on mobile was the exact trigger.
+
+## 3. The Root Cause — OS Level, Not Application Level
+
+The bug was not in my code at all.
+
+iOS and Android aggressively suspend background browser tabs the moment you switch to another app. This fires the Page Visibility API (visibilityState → 'hidden'), and the OS cuts background network activity within seconds — far faster than Pusher's own heartbeat timeout can detect.
+
+By the time I replied on Telegram, the Pusher WebSocket had already been killed at the OS level. Lambda pushed the new_message event to the session channel — but there was no active subscriber. And since Pusher does not buffer undelivered events, the message was permanently lost.
+
+The React component was intact. The state was intact. The connection was silently dead underneath.
+
+## 4. The Fix — Two Layers
+
+A single reconnection is not enough. Reconnecting re-establishes the WebSocket, but any messages pushed during the disconnected window are gone from Pusher forever. You need a second layer.
+
+Layer 1 — Reconnection:
+  Listen for the visibilitychange event.
+  When the page returns to the foreground ('visible'),
+  disconnect the dead Pusher instance and create a fresh one,
+  re-subscribing to the session channel.
+
+Layer 2 — Message Recovery:
+  Simultaneously, query DynamoDB for all stored messages
+  in the current session_id.
+  Every message (visitor and Joey alike) is persisted to
+  DynamoDB at the moment it is sent — before Pusher fires.
+  This makes DynamoDB a reliable offline buffer.
+  Merge returned messages against local state (deduplicate by text).
+  No message is lost regardless of how long the tab was backgrounded.
+
+The same Layer 2 also covers a related edge case: if a visitor closes the chat window entirely while I'm typing a reply, reopening the window calls fetchMissedMessages() on mount and recovers the full conversation.
+
+## 5. The Lesson
+
+The test matrix took ten minutes and pointed directly at the root cause before I touched a single line of investigation code.
+
+When something "just doesn't work," the temptation is to dive straight into the code and start changing things. Resist it. Isolate the variable first. Systematic > intuitive, every time.
+
+The bug lived at the OS level. No amount of reading React code would have found it.`
+  },
+  {
     id: '3',
     filename: 'joey_os_architecture_review.txt',
     title: 'Building a Serverless Web OS: An Architectural Review of Joey OS',
