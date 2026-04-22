@@ -183,7 +183,7 @@ TOPICS JOEY DOES NOT WANT DISCUSSED
                 api_url, data=json.dumps(payload).encode('utf-8'),
                 headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {api_key}'}
             )
-            with urllib.request.urlopen(req) as response:
+            with urllib.request.urlopen(req, timeout=25) as response:
                 result = json.loads(response.read().decode('utf-8'))
                 ai_reply = result['choices'][0]['message']['content']
 
@@ -285,7 +285,7 @@ def trigger_pusher(channel, event, data):
     
     try:
         req = urllib.request.Request(url, data=body_bytes, headers={'Content-Type': 'application/json'})
-        urllib.request.urlopen(req)
+        urllib.request.urlopen(req, timeout=10)
     except Exception as e:
         print(f"Pusher HTTP Error: {e}")
 
@@ -298,7 +298,7 @@ def send_to_telegram(text):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID: return
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     req = urllib.request.Request(url, data=json.dumps({"chat_id": TELEGRAM_CHAT_ID, "text": text}).encode('utf-8'), headers={'Content-Type': 'application/json'})
-    try: urllib.request.urlopen(req)
+    try: urllib.request.urlopen(req, timeout=5)
     except: pass
 
 def get_redis_count(key):
@@ -307,7 +307,7 @@ def get_redis_count(key):
     if not upstash_url or not upstash_token: return 0
     try:
         req = urllib.request.Request(f"{upstash_url}/get/{key}", headers={'Authorization': f'Bearer {upstash_token}'})
-        with urllib.request.urlopen(req) as response:
+        with urllib.request.urlopen(req, timeout=3) as response:
             val = json.loads(response.read().decode('utf-8')).get('result')
             return int(val) if val else 0
     except: return 0
@@ -319,12 +319,12 @@ def check_rate_limit(ip_address):
     redis_key = f"rate_limit:{ip_address}"
     try:
         req = urllib.request.Request(f"{upstash_url}/incr/{redis_key}", headers={'Authorization': f'Bearer {upstash_token}'})
-        with urllib.request.urlopen(req) as response:
+        with urllib.request.urlopen(req, timeout=3) as response:
             count = int(json.loads(response.read().decode('utf-8')).get('result', 0))
         if count == 1:
-            urllib.request.urlopen(urllib.request.Request(f"{upstash_url}/expire/{redis_key}/3600", headers={'Authorization': f'Bearer {upstash_token}'}))
+            urllib.request.urlopen(urllib.request.Request(f"{upstash_url}/expire/{redis_key}/3600", headers={'Authorization': f'Bearer {upstash_token}'}), timeout=3)
         if count > 15:
-            urllib.request.urlopen(urllib.request.Request(f"{upstash_url}/incr/stats:total_blocked", headers={'Authorization': f'Bearer {upstash_token}'}))
+            urllib.request.urlopen(urllib.request.Request(f"{upstash_url}/incr/stats:total_blocked", headers={'Authorization': f'Bearer {upstash_token}'}), timeout=3)
             return False
         return True
     except: return True
