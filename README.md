@@ -63,8 +63,14 @@ This project adopts a **Serverless & Event-Driven Architecture** to ensure high 
 ### 4. Bypassing Cross-Origin iframe Restrictions
 - **Problem:** Embedding my real GitHub and LinkedIn profiles directly via `iframe` was blocked by top-tier sites' anti-clickjacking security policies (`X-Frame-Options: DENY`).
 - **Solution:** I adopted an "API Extraction + Frontend Redraw" strategy.
-  - **GitHub:** Polled the public GitHub REST API to fetch repositories dynamically and integrated `github-readme-stats` SVG visualizations to rebuild a functional, hacker-style terminal UI.
+  - **GitHub:** Polled the public GitHub REST API to fetch repositories and user stats dynamically, rebuilding a functional hacker-style terminal UI entirely in React.
   - **LinkedIn:** Used CSS animations (scanning laser lines) and React to render a highly simulated Digital ID Card, providing secure external links while maintaining the desktop's immersive experience.
+
+### 5. AI Assistant — Anti-Hallucination & Self-Improving Knowledge System
+- **Problem:** The initial AI assistant (DeepSeek LLM) was given a 3-line system prompt and fabricated plausible-sounding but completely false information: invented project names, wrong visa type, made-up employment dates, and non-existent technologies. This was discovered during a live interview demo.
+- **Solution:** A two-part system was engineered:
+  1. **Grounded knowledge base:** The system prompt was replaced with a comprehensive, factual knowledge base covering education, work history with exact dates, real side projects, certifications, tech stack, and visa status. A strict rule was added: *"ONLY use facts listed below. NEVER invent, guess, or extrapolate."*
+  2. **Self-improving unknown question logger:** When the AI lacks information, it is instructed to append a `[[NEEDS_INFO: topic]]` marker to its reply. Lambda detects this marker via regex, strips it from the user-facing response, and persists the original question and topic to a dedicated DynamoDB table (`JoeyAIUnknown`). A `get_unknown_questions` API action allows Joey to review knowledge gaps and update the prompt accordingly — creating a feedback loop between real user queries and the AI's knowledge base.
 
 
 ## 💬 Live Chat — Full Workflow
@@ -156,15 +162,20 @@ NEXT_PUBLIC_APP_ENV=local
 
 1. Navigate to the `aws-backend/` directory in this repository and copy the contents of `lambda_function.py`.
 2. Go to your AWS Console, create a new Lambda function (Python 3.12+), and paste the code directly into the inline editor. No `.zip` packaging is required!
-3. Expose the Lambda via **AWS API Gateway** (ensure CORS is enabled).
-4. Configure the following **Environment Variables** in your AWS Lambda:
+3. **Set the Lambda timeout to 30 seconds.** (Configuration → General configuration → Timeout). The default 3-second timeout is insufficient for DeepSeek API calls.
+4. Expose the Lambda via **AWS API Gateway** (ensure CORS is enabled).
+5. Configure the following **Environment Variables** in your AWS Lambda:
 * `TELEGRAM_BOT_TOKEN` & `TELEGRAM_CHAT_ID`
 * `LLM_API_KEY`
 * `PUSHER_APP_ID`, `PUSHER_KEY`, `PUSHER_SECRET`, `PUSHER_CLUSTER`
 * `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
 
+6. Create the following **DynamoDB tables**:
+   - `JoeyChatLogs` — partition key: `MessageId` (String)
+   - `JoeyLiveChats` — partition key: `SessionId` (String), sort key: `Timestamp` (String)
+   - `JoeyAIUnknown` — partition key: `QuestionId` (String) *(stores questions the AI couldn't answer, for knowledge base updates)*
 
-5. Set up a **Telegram Webhook** pointing to your API Gateway URL.
+7. Set up a **Telegram Webhook** pointing to your API Gateway URL.
 
 ### 4. Run the Development Server
 

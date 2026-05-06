@@ -64,9 +64,15 @@
 
 ### 4. 突破跨域 iframe 嵌套限制
 - **挑战:** 尝试通过 `iframe` 直接内嵌真实的 GitHub 和 LinkedIn 个人主页时，被顶级站点的防点击劫持安全策略（`X-Frame-Options: DENY`）拦截。
-- **解决方案:** 采用了“API 提取 + 前端重绘”的策略。
-  - **GitHub:** 轮询公开的 GitHub REST API 动态拉取仓库数据，并集成 `github-readme-stats` 的 SVG 可视化图像，重构了一个功能完整的极客风终端 UI。
+- **解决方案:** 采用了”API 提取 + 前端重绘”的策略。
+  - **GitHub:** 轮询公开的 GitHub REST API 动态拉取仓库及用户数据，完全用 React 重构了一个功能完整的极客风终端 UI。
   - **LinkedIn:** 利用 CSS 动画（激光扫描线）和 React 渲染了一张高仿真的数字名片，提供安全外链的同时，保持了桌面系统的沉浸式体验。
+
+### 5. AI 助手 — 反幻觉机制与自优化知识库
+- **挑战:** 初版 AI 助手（DeepSeek LLM）只有 3 行系统 prompt，导致其在回答时大量编造看似合理的错误信息：虚构的项目名称、错误的签证类型、捏造的入职日期、不存在的技术栈。这一问题在一次真实的面试 Demo 中被当场暴露。
+- **解决方案:** 构建了两套机制：
+  1. **事实锚定的知识库：** 将系统 prompt 替换为完整、准确的知识库，涵盖教育经历、精确日期的工作履历、真实的个人项目、技术认证和签证状态。并加入铁律：*”只能使用以下列出的事实，绝不允许猜测或推断。”*
+  2. **自优化未知问题收集器：** 当 AI 遇到知识库未覆盖的问题时，指令其在回复末尾附加 `[[NEEDS_INFO: 主题]]` 标记。Lambda 通过正则表达式检测该标记，将其从用户可见的回复中剥离，并将原始问题和主题存入专用 DynamoDB 表（`JoeyAIUnknown`）。通过 `get_unknown_questions` 接口，Joey 可随时查看真实用户问过哪些知识盲区，并据此补充 prompt，形成”用户提问 → 知识补全”的正向反馈闭环。
 
 ---
 
@@ -157,17 +163,22 @@ NEXT_PUBLIC_APP_ENV=local
 ```
 ### 3. 部署后端 (AWS Lambda)
 
-1. 进入仓库的 `aws-backend/` 目录，复制 `lambda_function.py`的内容。
-2. 登录 AWS 控制台，新建一个 Lambda 函数 (Python 3.12+)，将代码直接粘贴到内联编辑器中。无需上传 `.zip` 包!
-3. 通过 **AWS API Gateway** 暴露该 Lambda (确保已开启 CORS)。
-4. 在 AWS Lambda 配置以下： **Environment Variables** ：
+1. 进入仓库的 `aws-backend/` 目录，复制 `lambda_function.py` 的内容。
+2. 登录 AWS 控制台，新建一个 Lambda 函数 (Python 3.12+)，将代码直接粘贴到内联编辑器中。无需上传 `.zip` 包！
+3. **将 Lambda 超时时间设置为 30 秒。**（Configuration → General configuration → Timeout）。默认的 3 秒对 DeepSeek API 调用而言严重不足，会导致请求超时失败。
+4. 通过 **AWS API Gateway** 暴露该 Lambda（确保已开启 CORS）。
+5. 在 AWS Lambda 配置以下 **Environment Variables**：
 * `TELEGRAM_BOT_TOKEN` & `TELEGRAM_CHAT_ID`
 * `LLM_API_KEY`
 * `PUSHER_APP_ID`, `PUSHER_KEY`, `PUSHER_SECRET`, `PUSHER_CLUSTER`
 * `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
 
+6. 创建以下 **DynamoDB 数据表**：
+   - `JoeyChatLogs` — 分区键：`MessageId`（String）
+   - `JoeyLiveChats` — 分区键：`SessionId`（String），排序键：`Timestamp`（String）
+   - `JoeyAIUnknown` — 分区键：`QuestionId`（String）*（存储 AI 无法回答的问题，供后续补充知识库）*
 
-5. 设置一个 **Telegram Webhook** 指向你的 API Gateway URL。
+7. 设置一个 **Telegram Webhook** 指向你的 API Gateway URL。
 
 ### 4. 启动本地开发服务器
 
