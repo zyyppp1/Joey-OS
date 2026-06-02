@@ -13,7 +13,7 @@ export function NavLink({
   match?: string; // route prefix that counts as "active"; omit to never highlight
 }) {
   const pathname = usePathname();
-  const active = match ? pathname === match || pathname.startsWith(match + "/") || pathname === match : false;
+  const active = match ? pathname === match || pathname.startsWith(match + "/") : false;
   return (
     <Link
       href={href}

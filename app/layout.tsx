@@ -4,6 +4,7 @@ import "./globals.css";
 import { profile } from "@/data/profile";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import FloatingChat from "@/components/FloatingChat";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,6 +56,7 @@ export default function RootLayout({
         <Nav />
         <div id="content">{children}</div>
         <Footer />
+        <FloatingChat />
       </body>
     </html>
   );

@@ -8,7 +8,7 @@
   --color-muted: #6e6e73;     /* Apple secondary gray */
   --color-border: #e8e8ed;
   --color-accent: #0071e3;    /* Apple blue (the one accent) */
-  --color-terminal: #15a34a;  /* retro "whisper" — used only on mono labels/code */
+  --color-terminal: #0f7a37;  /* retro "whisper" green — darkened to meet WCAG AA on small text */
 
   --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;

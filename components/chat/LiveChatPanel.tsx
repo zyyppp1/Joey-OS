@@ -54,12 +54,14 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
         const sorted = [...data.messages].sort((a, b) =>
           String(a.Timestamp).localeCompare(String(b.Timestamp))
         );
-        liveChat.set(
-          sorted.map((m: { Sender: string; Text: string }) => ({
-            sender: m.Sender === "joey" ? "joey" : "visitor",
-            text: m.Text,
-          }))
-        );
+        const rebuilt: LiveMsg[] = sorted.map((m: { Sender: string; Text: string }) => ({
+          sender: m.Sender === "joey" ? "joey" : "visitor",
+          text: m.Text,
+        }));
+        // Non-destructive: only replace when the server history is at least as
+        // complete as local state, so a Pusher message that arrived mid-fetch
+        // isn't clobbered.
+        if (rebuilt.length >= liveChat.get().length) liveChat.set(rebuilt);
       } catch {
         /* offline / not configured */
       }
@@ -112,10 +114,16 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
   return (
     <div className={`flex h-full flex-col ${className}`}>
       <div className="mb-3 flex items-center gap-2 font-mono text-xs text-muted">
-        <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-terminal" />
+        <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-terminal" aria-hidden="true" />
         live to Joey&apos;s phone
       </div>
-      <div className="flex-1 space-y-3 overflow-y-auto pr-1 text-sm leading-relaxed">
+      <div
+        className="flex-1 space-y-3 overflow-y-auto pr-1 text-sm leading-relaxed"
+        role="log"
+        aria-live="polite"
+        aria-atomic="false"
+        aria-busy={sending}
+      >
         {messages.map((m, i) => (
           <div key={i} className={m.sender === "visitor" ? "text-right" : ""}>
             <span
@@ -136,6 +144,7 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Message Joey…"
+          aria-label="Message Joey directly"
           className="min-w-0 flex-1 rounded-full border border-border bg-surface px-4 py-2 text-sm outline-none transition-colors focus:border-fg"
         />
         <button

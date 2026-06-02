@@ -59,8 +59,6 @@ export function useAiMessages() {
   );
 }
 export const aiChat = {
-  get: aiStore.getSnapshot,
-  set: aiStore.set,
   append: (m: AiMsg) => aiStore.update((p) => [...p, m]),
 };
 

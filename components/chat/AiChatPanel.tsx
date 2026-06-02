@@ -28,6 +28,13 @@ export const AiChatPanel = forwardRef<AiChatHandle, { className?: string }>(
       const t = text.trim();
       if (!t || typing) return;
       aiChat.append({ role: "user", content: t });
+      if (!AWS_API_URL) {
+        aiChat.append({
+          role: "assistant",
+          content: "The assistant isn't connected in this environment yet.",
+        });
+        return;
+      }
       setTyping(true);
       try {
         const res = await fetch(AWS_API_URL, {
@@ -66,7 +73,13 @@ export const AiChatPanel = forwardRef<AiChatHandle, { className?: string }>(
 
     return (
       <div className={`flex h-full flex-col ${className}`}>
-        <div className="flex-1 space-y-3 overflow-y-auto pr-1 text-sm leading-relaxed">
+        <div
+          className="flex-1 space-y-3 overflow-y-auto pr-1 text-sm leading-relaxed"
+          role="log"
+          aria-live="polite"
+          aria-atomic="false"
+          aria-busy={typing}
+        >
           {messages.map((m, i) => (
             <div key={i} className={m.role === "user" ? "text-right" : ""}>
               <span
@@ -93,6 +106,7 @@ export const AiChatPanel = forwardRef<AiChatHandle, { className?: string }>(
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about my work…"
+            aria-label="Ask the AI assistant about Joey's work"
             className="min-w-0 flex-1 rounded-full border border-border bg-surface px-4 py-2 text-sm outline-none transition-colors focus:border-fg"
           />
           <button

@@ -1,4 +1,9 @@
-// data/resume.ts — résumé content as data (mirrors the data/blogs.ts pattern).
+// data/resume.ts — full résumé data (single source of truth).
+// NOTE: this site is works-first and deliberately renders only a SUBSET —
+// experience role/company/period/summary (ExperienceTeaser + /about) and the
+// skills list (/about). `highlights`, `education`, and `certifications` are
+// intentionally NOT rendered on the site (kept for the PDF / a future CMS).
+// Don't surface them on the site without revisiting the works-first intent.
 
 export type ExperienceItem = {
   company: string;

@@ -8,7 +8,6 @@ import { Contact } from "@/components/sections/Contact";
 import { Section } from "@/components/ui/Section";
 import { SystemStatus } from "@/components/SystemStatus";
 import { Reveal } from "@/components/fx/Reveal";
-import FloatingChat from "@/components/FloatingChat";
 import { ScrollProgress } from "@/components/fx/ScrollProgress";
 
 export default function Home() {
@@ -49,7 +48,6 @@ export default function Home() {
       </Section>
 
       <Contact />
-      <FloatingChat />
     </main>
   );
 }

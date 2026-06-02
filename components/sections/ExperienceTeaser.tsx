@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Section } from "../ui/Section";
 import { experience } from "@/data/resume";
-import { profile } from "@/data/profile";
 
 export function ExperienceTeaser() {
   return (
@@ -19,20 +18,10 @@ export function ExperienceTeaser() {
           </div>
         ))}
       </div>
-      <div className="mt-8 flex flex-wrap gap-4">
-        <Link
-          href="/about"
-          className="font-mono text-sm text-accent hover:underline"
-        >
-          Full résumé & background →
+      <div className="mt-8">
+        <Link href="/about" className="font-mono text-sm text-accent hover:underline">
+          More about me →
         </Link>
-        <a
-          href={profile.resumePdf}
-          download
-          className="font-mono text-sm text-muted hover:text-fg"
-        >
-          Download PDF ↓
-        </a>
       </div>
     </Section>
   );

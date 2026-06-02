@@ -10,8 +10,8 @@ export const profile = {
   bio: "I'm a backend and cloud engineer based in the UK, focused on building APIs and serverless systems that stay simple where it counts and solid under load. I'm AWS Solutions Architect – Associate certified, and most things I build — including this site — end up running on AWS.",
   location: "United Kingdom",
 
-  // TODO: set your real production domain (used for SEO / OpenGraph / sitemap).
-  siteUrl: "https://joeyzhu.dev",
+  // Set NEXT_PUBLIC_SITE_URL in the deploy env; the fallback is a placeholder.
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://joeyzhu.dev",
 
   links: {
     github: "https://github.com/zyyppp1",

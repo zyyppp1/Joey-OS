@@ -40,12 +40,14 @@ export function FeaturedWork() {
           </Reveal>
         ))}
       </div>
-      <Link
-        href="/work"
-        className="mt-8 inline-block font-mono text-sm text-accent hover:underline"
-      >
-        All work →
-      </Link>
+      {projects.length > featured.length && (
+        <Link
+          href="/work"
+          className="mt-8 inline-block font-mono text-sm text-accent hover:underline"
+        >
+          All work →
+        </Link>
+      )}
     </Section>
   );
 }

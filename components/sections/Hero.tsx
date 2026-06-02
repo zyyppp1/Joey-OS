@@ -22,17 +22,16 @@ export function Hero() {
         </p>
         <div className="mt-10 flex flex-wrap items-center gap-4">
           <MagneticButton
-            href="#contact"
+            href="#work"
             className="inline-block rounded-full bg-fg px-6 py-3 text-sm font-medium text-bg"
           >
-            Get in touch
+            See the work
           </MagneticButton>
           <MagneticButton
-            href={profile.resumePdf}
-            download
+            href="#contact"
             className="inline-block rounded-full border border-border px-6 py-3 text-sm font-medium hover:border-fg"
           >
-            Download résumé
+            Get in touch
           </MagneticButton>
         </div>
         <p className="mt-8 text-sm text-muted">{profile.location}</p>
