@@ -71,13 +71,13 @@ export const projects: Project[] = [
   {
     "slug": "ai-resume-editor",
     "title": "AI Resume Editor",
-    "tagline": "Paste a job description; a multi-agent pipeline tailors your résumé into an ATS-friendly one-page PDF — live.",
+    "tagline": "Paste a job description; a multi-agent pipeline tailors your resume into an ATS-friendly one-page PDF — live.",
     "year": "2026",
     "role": "Solo — full-stack + AI",
-    "summary": "An AI résumé-tailoring tool: paste a job description and a multi-agent LLM pipeline selects your most relevant experience, rewrites it into ATS-friendly bullets, compiles a one-page LaTeX PDF previewed live in the browser, writes a matching cover letter, and scores ATS keyword coverage.",
-    "problem": "Tailoring a résumé to each job is slow and inconsistent, and generic résumés score poorly against ATS keyword filters.",
+    "summary": "An AI resume-tailoring tool: paste a job description and a multi-agent LLM pipeline selects your most relevant experience, rewrites it into ATS-friendly bullets, compiles a one-page LaTeX PDF previewed live in the browser, writes a matching cover letter, and scores ATS keyword coverage.",
+    "problem": "Tailoring a resume to each job is slow and inconsistent, and generic resumes score poorly against ATS keyword filters.",
     "approach": [
-      "Five-agent pipeline orchestrated server-side: JD analyzer → profile RAG (ChromaDB top-K facts) → résumé tailor (LaTeX body) → cover letter → compile + ATS quality check, with later stages run concurrently.",
+      "Five-agent pipeline orchestrated server-side: JD analyzer → profile RAG (ChromaDB top-K facts) → resume tailor (LaTeX body) → cover letter → compile + ATS quality check, with later stages run concurrently.",
       "Streams progress to the browser over Server-Sent Events; the final event carries the compiled PDF (HMAC-signed, expiring), the TeX source, an ATS score, and the cover letter.",
       "Provider-agnostic LLM layer — Anthropic, any OpenAI-compatible API (OpenAI / DeepSeek / Groq), or a local Ollama model — switchable by config with no code change.",
       "Per-JD retrieval from a ChromaDB profile store so only the most relevant experience is used."
@@ -88,7 +88,7 @@ export const projects: Project[] = [
       "Deployed on Fly.io (Singapore region)."
     ],
     "impact": [
-      "Live on the web — paste a job description and get a tailored, ATS-friendly one-page résumé + cover letter, generated in a single streamed pass."
+      "Live on the web — paste a job description and get a tailored, ATS-friendly one-page resume + cover letter, generated in a single streamed pass."
     ],
     "stack": [
       "Python",

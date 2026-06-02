@@ -63,7 +63,7 @@ export default function AboutPage() {
             download
             className="rounded-full bg-fg px-5 py-2.5 text-sm font-medium text-bg transition-opacity hover:opacity-90"
           >
-            Full résumé (PDF) ↓
+            Full resume (PDF) ↓
           </a>
           <a
             href={profile.links.linkedin}

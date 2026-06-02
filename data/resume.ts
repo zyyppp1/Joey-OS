@@ -1,4 +1,4 @@
-// data/resume.ts — full résumé data (single source of truth).
+// data/resume.ts — full resume data (single source of truth).
 // NOTE: this site is works-first and deliberately renders only a SUBSET —
 // experience role/company/period/summary (ExperienceTeaser + /about) and the
 // skills list (/about). `highlights`, `education`, and `certifications` are
