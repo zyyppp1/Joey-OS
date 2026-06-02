@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import JoeyOSExhibit from "@/components/exhibit/JoeyOSExhibit";
+import JoeyOSExhibit from "@/components/legacy/JoeyOSExhibit";
 
 export const metadata: Metadata = {
   title: "Joey OS (original)",

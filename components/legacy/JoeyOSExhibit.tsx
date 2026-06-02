@@ -1,13 +1,13 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import RetroWindow from '../RetroWindow';
-import AiChat from '../AiChat';
-import SystemMonitor from '../SystemMonitor';
-import ResumeApp from '../ResumeApp';
-import LiveChat from '../LiveChat';
-import BlogApp from '../BlogApp';
-import GitHubApp from '../GitHubApp';
-import LinkedInApp from '../LinkedInApp';
+import RetroWindow from './RetroWindow';
+import AiChat from './AiChat';
+import SystemMonitor from './SystemMonitor';
+import ResumeApp from './ResumeApp';
+import LiveChat from './LiveChat';
+import BlogApp from './BlogApp';
+import GitHubApp from './GitHubApp';
+import LinkedInApp from './LinkedInApp';
 
 type AppState = { open: boolean; minimized: boolean };
 

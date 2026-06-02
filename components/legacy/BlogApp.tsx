@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { BLOG_POSTS, BlogPost } from '../data/blogs';
+import { BLOG_POSTS, BlogPost } from './data/blogs';
 
 export default function BlogApp() {
   const [activePost, setActivePost] = useState<BlogPost>(BLOG_POSTS[0]);
