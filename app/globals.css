@@ -101,7 +101,7 @@
   100% { opacity: 0; }
 }
 .shard {
-  background: linear-gradient(to bottom, #161616, #050505);
+  /* background-color is set per-tile inline (black/white shatter) */
   will-change: transform;
 }
 .shard-in {
