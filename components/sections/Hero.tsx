@@ -10,8 +10,8 @@ export function Hero() {
     <section className="relative overflow-hidden pt-28 pb-20 sm:pt-40 sm:pb-28">
       <DotGrid />
       <Container className="relative">
-        <p className="mb-6 font-mono text-lg text-muted sm:text-xl">
-          <span className="text-terminal">$</span> whoami
+        <p className="mb-6 font-mono text-xs uppercase tracking-widest text-terminal">
+          who am i
         </p>
         <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl">
           <ScrambleText text={profile.name} />
