@@ -110,6 +110,27 @@
 .shard-out {
   animation: shardFallOut 0.5s cubic-bezier(0.45, 0, 0.7, 0.2) both;
 }
+@keyframes shatterOut {
+  from { transform: translateY(0) translateX(0) rotate(0deg); }
+  to {
+    transform: translateY(125vh) translateX(var(--tx, 0px)) rotate(var(--rot, 0deg));
+  }
+}
+.shard-shatter-out {
+  animation: shatterOut 0.8s cubic-bezier(0.5, 0, 0.9, 0.25) both;
+}
+/* "black glass shard" — smoked/tinted glass: dark + translucent, light edge reflection */
+.shard-glass {
+  background: linear-gradient(
+    135deg,
+    rgba(24, 24, 24, 0.82),
+    rgba(0, 0, 0, 0.66)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 12px rgba(0, 0, 0, 0.5);
+}
 
 @media (prefers-reduced-motion: reduce) {
   html {
