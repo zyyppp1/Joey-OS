@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { NavLink } from "./NavLink";
+import { VersionSwitch } from "./fx/VersionSwitch";
 
 export function Nav() {
   return (
@@ -13,6 +14,7 @@ export function Nav() {
           <NavLink href="/about" label="About" match="/about" />
           <NavLink href="/blog" label="Writing" match="/blog" />
           <NavLink href="/#contact" label="Contact" />
+          <VersionSwitch />
         </div>
       </nav>
     </header>
