@@ -15,7 +15,7 @@ export function Section({
   return (
     <section
       id={id}
-      className="border-t border-border py-20 first:border-t-0 sm:py-28"
+      className="scroll-mt-24 border-t border-border py-20 first:border-t-0 sm:py-28"
     >
       <Container>
         {eyebrow && (

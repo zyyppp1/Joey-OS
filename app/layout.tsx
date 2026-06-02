@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { profile } from "@/data/profile";
 import { Nav } from "@/components/Nav";
+import { Footer } from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,6 +22,7 @@ export const metadata: Metadata = {
     template: `%s — ${profile.shortName}`,
   },
   description: profile.summary,
+  authors: [{ name: profile.name }],
   openGraph: {
     title: `${profile.name} — ${profile.title}`,
     description: profile.summary,
@@ -44,8 +46,15 @@ export default function RootLayout({
             __html: "document.documentElement.classList.add('js')",
           }}
         />
+        <a
+          href="#content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-full focus:bg-fg focus:px-4 focus:py-2 focus:text-sm focus:text-bg"
+        >
+          Skip to content
+        </a>
         <Nav />
-        {children}
+        <div id="content">{children}</div>
+        <Footer />
       </body>
     </html>
   );

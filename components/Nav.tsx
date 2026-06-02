@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NavLink } from "./NavLink";
 
 export function Nav() {
   return (
@@ -7,19 +8,11 @@ export function Nav() {
         <Link href="/" className="font-mono text-sm font-semibold tracking-tight">
           JZ<span className="text-terminal">_</span>
         </Link>
-        <div className="flex items-center gap-5 text-sm text-muted">
-          <Link href="/work" className="transition-colors hover:text-fg">
-            Work
-          </Link>
-          <Link href="/about" className="transition-colors hover:text-fg">
-            About
-          </Link>
-          <Link href="/blog" className="transition-colors hover:text-fg">
-            Writing
-          </Link>
-          <Link href="/#contact" className="transition-colors hover:text-fg">
-            Contact
-          </Link>
+        <div className="flex items-center gap-5 text-sm">
+          <NavLink href="/work" label="Work" match="/work" />
+          <NavLink href="/about" label="About" match="/about" />
+          <NavLink href="/blog" label="Writing" match="/blog" />
+          <NavLink href="/#contact" label="Contact" />
         </div>
       </nav>
     </header>
