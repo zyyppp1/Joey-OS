@@ -97,9 +97,11 @@ export default async function WorkDetail({
             <Bullets items={p.architecture} />
           </Block>
         )}
-        <Block title="Impact">
-          <Bullets items={p.impact} accent />
-        </Block>
+        {p.impact.length > 0 && (
+          <Block title="Impact">
+            <Bullets items={p.impact} accent />
+          </Block>
+        )}
         <Block title="Stack">
           <div className="flex flex-wrap gap-2">
             {p.stack.map((s) => (
