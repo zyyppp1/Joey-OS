@@ -1,5 +1,6 @@
 // data/projects.ts — projects as CASE STUDIES (the spine of the portfolio).
-// GitHub-sourced entries were generated from each repo's README (the owner's own words).
+// Public-GitHub entries were generated from each repo's README; private projects
+// (AI Resume Editor, Zoho Mail AI) are hand-written from their local READMEs.
 // Add/curate entries here; /work and /work/[slug] render from this.
 
 export type Project = {
@@ -63,6 +64,44 @@ export const projects: Project[] = [
       {
         "label": "Source",
         "href": "https://github.com/zyyppp1/Joey-OS"
+      }
+    ],
+    "featured": true
+  },
+  {
+    "slug": "ai-resume-editor",
+    "title": "AI Resume Editor",
+    "tagline": "Paste a job description; a multi-agent pipeline tailors your résumé into an ATS-friendly one-page PDF — live.",
+    "year": "2026",
+    "role": "Solo — full-stack + AI",
+    "summary": "An AI résumé-tailoring tool: paste a job description and a multi-agent LLM pipeline selects your most relevant experience, rewrites it into ATS-friendly bullets, compiles a one-page LaTeX PDF previewed live in the browser, writes a matching cover letter, and scores ATS keyword coverage.",
+    "problem": "Tailoring a résumé to each job is slow and inconsistent, and generic résumés score poorly against ATS keyword filters.",
+    "approach": [
+      "Five-agent pipeline orchestrated server-side: JD analyzer → profile RAG (ChromaDB top-K facts) → résumé tailor (LaTeX body) → cover letter → compile + ATS quality check, with later stages run concurrently.",
+      "Streams progress to the browser over Server-Sent Events; the final event carries the compiled PDF (HMAC-signed, expiring), the TeX source, an ATS score, and the cover letter.",
+      "Provider-agnostic LLM layer — Anthropic, any OpenAI-compatible API (OpenAI / DeepSeek / Groq), or a local Ollama model — switchable by config with no code change.",
+      "Per-JD retrieval from a ChromaDB profile store so only the most relevant experience is used."
+    ],
+    "architecture": [
+      "Python backend: agents pipeline, ChromaDB RAG, a sandboxed xelatex compiler, a LangChain provider abstraction, and SQLite persistence.",
+      "Vanilla-JS front end renders the PDF with PDF.js; the whole pipeline runs inline inside one streaming HTTP request (no job queue).",
+      "Deployed on Fly.io (Singapore region)."
+    ],
+    "impact": [],
+    "stack": [
+      "Python",
+      "LangChain",
+      "ChromaDB (RAG)",
+      "Server-Sent Events",
+      "LaTeX (xelatex)",
+      "PDF.js",
+      "SQLite",
+      "Fly.io"
+    ],
+    "links": [
+      {
+        "label": "Live app ↗",
+        "href": "https://ai-resume-editor.fly.dev"
       }
     ],
     "featured": true
@@ -190,6 +229,35 @@ export const projects: Project[] = [
         "label": "Source",
         "href": "https://github.com/zyyppp1/chatbot-project"
       }
+    ],
+    "featured": false
+  },
+  {
+    "slug": "zoho-mail-ai",
+    "title": "Zoho Mail AI Triage",
+    "tagline": "A hybrid rule-engine + LLM that auto-classifies and routes a Zoho inbox.",
+    "year": "2026",
+    "role": "Solo",
+    "summary": "An AI email assistant for Zoho Mail that classifies, routes, and organizes mail with a hybrid rule-engine + LLM pipeline — a deterministic rule engine resolves obvious cases instantly and only ambiguous mail reaches the LLM.",
+    "problem": "Inbox triage is repetitive: most mail (rejections, OA invites, OTPs, newsletters) follows obvious patterns, yet running every email through an LLM is slow and expensive.",
+    "approach": [
+      "Hybrid pipeline: a deterministic rule engine handles obvious cases instantly; only ambiguous emails are sent to the LLM.",
+      "Priority-ordered decision-tree prompt with 9 annotated few-shot examples for consistent edge-case classification (confirmations, rejections, OTP codes).",
+      "First-match-wins routing into purpose-built Zoho folders — OTPs auto-deleted, uncertain mail flagged for manual review, nothing left stranded.",
+      "OAuth2 with automatic token refresh on 401; first-run full backfill then incremental fetch via a known-ids optimization."
+    ],
+    "architecture": [
+      "Multi-provider LLM behind one interface (DeepSeek, OpenAI, Groq, Claude, local Ollama), switchable with one line in .env.",
+      "Rule engine + LLM classifier feed a deterministic routing table applied via the Zoho Mail API."
+    ],
+    "impact": [
+      "Cuts LLM API cost ~60–70% by resolving obvious cases with the rule engine before involving the LLM."
+    ],
+    "stack": [
+      "Python",
+      "LLM (DeepSeek / OpenAI / Groq / Claude / Ollama)",
+      "Zoho Mail API",
+      "OAuth2"
     ],
     "featured": false
   },
