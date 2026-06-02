@@ -7,6 +7,7 @@ export const profile = {
   tagline: "building reliable systems on AWS",
   summary:
     "Backend & cloud engineer based in the UK. I build secure, high-performance APIs and serverless systems with Node.js, Go, Python, and AWS.",
+  bio: "I'm a backend and cloud engineer based in the UK, focused on building APIs and serverless systems that stay simple where it counts and solid under load. I'm AWS Solutions Architect – Associate certified, and most things I build — including this site — end up running on AWS.",
   location: "United Kingdom",
 
   // TODO: set your real production domain (used for SEO / OpenGraph / sitemap).
