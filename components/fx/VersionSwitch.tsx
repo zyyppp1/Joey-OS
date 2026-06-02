@@ -1,17 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+const COLS = 14;
+const ROWS = 9;
+
 /**
- * "prefer old version?" nav button → plays a retro CRT boot animation, then
- * routes to /joey-os (the revived original desktop OS). Reduced-motion users
- * skip straight to the route.
+ * "prefer old version?" nav button → a falling-shards transition: a grid of
+ * fragments drops in from the top to cover the screen, we route to /joey-os
+ * underneath, then the shards keep falling to reveal the old desktop OS.
+ * Reduced-motion users skip straight to the route.
  */
 export function VersionSwitch() {
   const router = useRouter();
   const [on, setOn] = useState(false);
-  const [fading, setFading] = useState(false);
+  const [phase, setPhase] = useState<"in" | "out">("in");
+
+  const tiles = useMemo(() => {
+    const arr: { key: string; inDelay: number; outDelay: number }[] = [];
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        arr.push({
+          key: `${r}-${c}`,
+          inDelay: r * 0.05 + Math.random() * 0.22,
+          outDelay: (ROWS - 1 - r) * 0.045 + Math.random() * 0.18,
+        });
+      }
+    }
+    return arr;
+  }, []);
 
   const go = () => {
     if (on) return;
@@ -19,17 +37,16 @@ export function VersionSwitch() {
       router.push("/joey-os");
       return;
     }
+    setPhase("in");
     setOn(true);
-    setFading(false);
     router.prefetch("/joey-os");
     document.documentElement.style.overflow = "hidden";
-    setTimeout(() => router.push("/joey-os"), 1400);
-    setTimeout(() => setFading(true), 1950);
+    setTimeout(() => router.push("/joey-os"), 1300);
+    setTimeout(() => setPhase("out"), 1900);
     setTimeout(() => {
       setOn(false);
-      setFading(false);
       document.documentElement.style.overflow = "";
-    }, 2450);
+    }, 2600);
   };
 
   return (
@@ -42,26 +59,31 @@ export function VersionSwitch() {
       </button>
 
       {on && (
-        <div
-          aria-hidden="true"
-          className={`fixed inset-0 z-[300] overflow-hidden bg-black transition-opacity duration-500 ${
-            fading ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          <div className="scanlines pointer-events-none absolute inset-0 z-10" />
-          <div className="crt-boot crt-flicker absolute inset-0 flex items-center justify-center">
-            <div className="text-center font-mono text-[#4ade80] [text-shadow:0_0_10px_rgba(74,222,128,0.6)]">
-              <p className="text-xs opacity-70 sm:text-sm">&gt; exiting portfolio…</p>
-              <p className="mt-3 text-xl font-bold tracking-[0.3em] sm:text-3xl">
-                BOOTING JOEY_OS v1.0
-              </p>
-              <div className="mx-auto mt-5 h-2 w-56 max-w-[70vw] overflow-hidden border border-[#4ade80]/60">
-                <div className="loadbar h-full bg-[#4ade80]" />
-              </div>
-              <p className="mt-3 text-xs opacity-60">
-                restoring retro desktop<span className="animate-pulse">_</span>
-              </p>
-            </div>
+        <div aria-hidden="true" className="fixed inset-0 z-[300] overflow-hidden">
+          <div
+            className="grid h-full w-full gap-px"
+            style={{
+              gridTemplateColumns: `repeat(${COLS}, 1fr)`,
+              gridTemplateRows: `repeat(${ROWS}, 1fr)`,
+            }}
+          >
+            {tiles.map((t) => (
+              <div
+                key={t.key}
+                className={`shard ${phase === "in" ? "shard-in" : "shard-out"}`}
+                style={{
+                  animationDelay: `${phase === "in" ? t.inDelay : t.outDelay}s`,
+                }}
+              />
+            ))}
+          </div>
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <p
+              className="font-mono text-xl font-bold tracking-[0.3em] text-[#4ade80] [text-shadow:0_0_12px_rgba(74,222,128,0.6)] sm:text-3xl"
+              style={{ animation: "shardLabel 2.4s ease-in-out both" }}
+            >
+              JOEY_OS v1
+            </p>
           </div>
         </div>
       )}

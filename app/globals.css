@@ -86,48 +86,29 @@
   }
 }
 
-/* ----- Retro CRT "boot into v1" transition (VersionSwitch) ----- */
-@keyframes crtOn {
-  0% { transform: scaleY(0.003); filter: brightness(4); opacity: 0; }
-  12% { transform: scaleY(0.003); opacity: 1; }
-  40% { transform: scaleY(0.02) scaleX(1.02); filter: brightness(3); }
-  70% { transform: scaleY(1) scaleX(1); filter: brightness(1.4); }
-  100% { transform: scaleY(1) scaleX(1); filter: brightness(1); }
+/* ----- "Falling shards" transition (VersionSwitch → /joey-os) ----- */
+@keyframes shardFallIn {
+  0% { transform: translateY(-130%); }
+  100% { transform: translateY(0); }
 }
-@keyframes crtFlicker {
-  0%, 88%, 100% { opacity: 1; }
-  90% { opacity: 0.55; }
-  92% { opacity: 1; }
-  95% { opacity: 0.8; }
-  97% { opacity: 1; }
+@keyframes shardFallOut {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(130%); }
 }
-@keyframes loadbar {
-  from { width: 0%; }
-  to { width: 100%; }
+@keyframes shardLabel {
+  0%, 22% { opacity: 0; }
+  42%, 76% { opacity: 1; }
+  100% { opacity: 0; }
 }
-@keyframes scanmove {
-  from { background-position: 0 0; }
-  to { background-position: 0 100vh; }
+.shard {
+  background: linear-gradient(to bottom, #161616, #050505);
+  will-change: transform;
 }
-.crt-boot {
-  transform-origin: center;
-  animation: crtOn 0.55s ease-out both;
+.shard-in {
+  animation: shardFallIn 0.5s cubic-bezier(0.45, 0, 0.7, 0.2) both;
 }
-.crt-flicker {
-  animation: crtOn 0.55s ease-out both, crtFlicker 1.4s linear 0.55s;
-}
-.scanlines {
-  background-image: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.28) 0px,
-    rgba(0, 0, 0, 0.28) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  animation: scanmove 6s linear infinite;
-}
-.loadbar {
-  animation: loadbar 1.15s ease-in-out both;
+.shard-out {
+  animation: shardFallOut 0.5s cubic-bezier(0.45, 0, 0.7, 0.2) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
