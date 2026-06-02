@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { profile } from "@/data/profile";
+import { Nav } from "@/components/Nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,8 +15,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Joey (Yepeng) Zhu | Software Engineer",
-  description: "Personal Portfolio & Web OS of Joey Zhu. Built with Next.js, AWS Serverless, and love.", // <--- 改成这个！
+  metadataBase: new URL(profile.siteUrl),
+  title: {
+    default: `${profile.name} — ${profile.title}`,
+    template: `%s — ${profile.shortName}`,
+  },
+  description: profile.summary,
+  openGraph: {
+    title: `${profile.name} — ${profile.title}`,
+    description: profile.summary,
+    url: profile.siteUrl,
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({
@@ -23,10 +36,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* Adds `js` to <html> before paint so motion CSS hides only when JS is on. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "document.documentElement.classList.add('js')",
+          }}
+        />
+        <Nav />
         {children}
       </body>
     </html>

@@ -1,8 +1,82 @@
 @import "tailwindcss";
 
-/* 给整个电脑屏幕铺上经典的复古深青色背景 (Classic Mac/Win95 Desktop Teal) */
-body {
-  margin: 0;
-  overflow: hidden; /* 禁止浏览器滚动条，因为这是一个桌面系统 */
-  font-family: 'Courier New', Courier, monospace; /* 暂用自带的等宽字体增加极客感 */
+/* ----- Apple-minimal design tokens (Tailwind v4 @theme) ----- */
+@theme {
+  --color-bg: #fbfbfd;        /* Apple off-white */
+  --color-surface: #ffffff;
+  --color-fg: #1d1d1f;        /* Apple near-black */
+  --color-muted: #6e6e73;     /* Apple secondary gray */
+  --color-border: #e8e8ed;
+  --color-accent: #0071e3;    /* Apple blue (the one accent) */
+  --color-terminal: #15a34a;  /* retro "whisper" — used only on mono labels/code */
+
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  }
+}
+
+/* ----- Motion layer (progressive enhancement) ----- */
+
+/* Scroll-reveal: only hide when JS is on, so no-JS / crawlers still see content. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.js .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Cursor-following spotlight on cards. */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--color-accent) 16%, transparent),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
