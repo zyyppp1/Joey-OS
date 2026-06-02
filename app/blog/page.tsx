@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   description: "Notes on backend, cloud, and building things.",
 };
 
+// Time-based ISR — new/edited posts appear within ~60s (Amplify-compatible).
+export const revalidate = 60;
+
 export default async function BlogIndex() {
   const posts = await getAllPosts();
 

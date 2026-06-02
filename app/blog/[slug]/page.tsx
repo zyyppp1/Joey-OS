@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { getAllPosts, getPost } from "@/lib/blog";
+import { PortableBody } from "@/components/PortableBody";
+
+// Time-based ISR — edits to existing posts appear within ~60s (Amplify-compatible).
+export const revalidate = 60;
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
@@ -40,9 +44,23 @@ export default async function BlogPostPage({
           <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
             {post.title}
           </h1>
-          <div className="mt-8 whitespace-pre-wrap text-[17px] leading-[1.7] text-fg/90">
-            {post.content}
-          </div>
+          {post.coverImage && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={post.coverImage}
+              alt=""
+              className="mt-6 w-full rounded-2xl border border-border"
+            />
+          )}
+          {post.body && post.body.length > 0 ? (
+            <div className="mt-8">
+              <PortableBody value={post.body} />
+            </div>
+          ) : (
+            <div className="mt-8 whitespace-pre-wrap text-[17px] leading-[1.7] text-fg/90">
+              {post.content}
+            </div>
+          )}
         </article>
       </Container>
     </main>
