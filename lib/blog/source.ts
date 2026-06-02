@@ -60,5 +60,13 @@ async function sanityPosts(): Promise<Post[]> {
 }
 
 export async function fetchPosts(): Promise<Post[]> {
-  return sanityConfigured ? sanityPosts() : localPosts();
+  if (!sanityConfigured) return localPosts();
+  try {
+    const posts = await sanityPosts();
+    // Smooth transition: until the Sanity project has posts, keep showing the
+    // existing local posts so the blog is never empty.
+    return posts.length > 0 ? posts : localPosts();
+  } catch {
+    return localPosts();
+  }
 }
