@@ -14,6 +14,12 @@ export function Nav() {
           <NavLink href="/about" label="About" match="/about" />
           <NavLink href="/blog" label="Writing" match="/blog" />
           <NavLink href="/#contact" label="Contact" />
+          <Link
+            href="/studio"
+            className="hidden text-muted transition-colors hover:text-fg sm:inline"
+          >
+            Admin
+          </Link>
           <VersionSwitch />
         </div>
       </nav>
