@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { Section } from "../ui/Section";
-import { projects } from "@/data/projects";
+import { projects, type Project } from "@/data/projects";
 import { Reveal } from "../fx/Reveal";
 import { SpotlightCard } from "../fx/SpotlightCard";
 
 export function FeaturedWork() {
-  const featured = projects.filter((p) => p.featured);
+  // Projects shown directly on the home, in this order (the rest live on /work).
+  const HOME_ORDER = ["ai-resume-editor", "joey-os", "zoho-mail-ai"];
+  const featured = HOME_ORDER.map((slug) =>
+    projects.find((p) => p.slug === slug)
+  ).filter((p): p is Project => Boolean(p));
   return (
     <Section id="work" eyebrow="selected work" title="Things I've built">
       <div className="space-y-5">
