@@ -87,7 +87,9 @@ export const projects: Project[] = [
       "Vanilla-JS front end renders the PDF with PDF.js; the whole pipeline runs inline inside one streaming HTTP request (no job queue).",
       "Deployed on Fly.io (Singapore region)."
     ],
-    "impact": [],
+    "impact": [
+      "Live on the web — paste a job description and get a tailored, ATS-friendly one-page résumé + cover letter, generated in a single streamed pass."
+    ],
     "stack": [
       "Python",
       "LangChain",
@@ -100,7 +102,7 @@ export const projects: Project[] = [
     ],
     "links": [
       {
-        "label": "Live app ↗",
+        "label": "Live web ↗",
         "href": "https://ai-resume-editor.fly.dev"
       }
     ],
