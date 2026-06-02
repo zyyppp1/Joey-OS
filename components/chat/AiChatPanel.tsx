@@ -18,10 +18,12 @@ export const AiChatPanel = forwardRef<AiChatHandle, { className?: string }>(
     const messages = useAiMessages();
     const [input, setInput] = useState("");
     const [typing, setTyping] = useState(false);
-    const endRef = useRef<HTMLDivElement>(null);
+    const listRef = useRef<HTMLDivElement>(null);
 
+    // Scroll the message list itself (NOT scrollIntoView, which also scrolls the page).
     useEffect(() => {
-      endRef.current?.scrollIntoView({ behavior: "smooth" });
+      const el = listRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
     }, [messages, typing]);
 
     const send = async (text: string) => {
@@ -74,6 +76,7 @@ export const AiChatPanel = forwardRef<AiChatHandle, { className?: string }>(
     return (
       <div className={`flex h-full flex-col ${className}`}>
         <div
+          ref={listRef}
           className="flex-1 space-y-3 overflow-y-auto pr-1 text-sm leading-relaxed"
           role="log"
           aria-live="polite"
@@ -99,7 +102,6 @@ export const AiChatPanel = forwardRef<AiChatHandle, { className?: string }>(
               <span className="animate-pulse">…</span>
             </p>
           )}
-          <div ref={endRef} />
         </div>
         <form onSubmit={onSubmit} className="mt-3 flex gap-2">
           <input

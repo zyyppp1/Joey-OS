@@ -5,6 +5,7 @@ import { profile } from "@/data/profile";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import FloatingChat from "@/components/FloatingChat";
+import { Intro } from "@/components/fx/Intro";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export default function RootLayout({
             __html: "document.documentElement.classList.add('js')",
           }}
         />
+        <Intro />
         <a
           href="#content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-full focus:bg-fg focus:px-4 focus:py-2 focus:text-sm focus:text-bg"

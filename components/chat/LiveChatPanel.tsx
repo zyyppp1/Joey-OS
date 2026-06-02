@@ -19,7 +19,7 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [sessionId, setSessionId] = useState("");
-  const endRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const pusherRef = useRef<Pusher | null>(null);
 
   useEffect(() => {
@@ -40,7 +40,6 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
     };
 
     // Authoritative rebuild from the server's timestamp-sorted history.
-    // (Fixes the old bug: dedup-by-text dropped repeats and appended out of order.)
     const recover = async () => {
       if (!AWS_API_URL) return;
       try {
@@ -58,9 +57,7 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
           sender: m.Sender === "joey" ? "joey" : "visitor",
           text: m.Text,
         }));
-        // Non-destructive: only replace when the server history is at least as
-        // complete as local state, so a Pusher message that arrived mid-fetch
-        // isn't clobbered.
+        // Non-destructive: only replace when the server is at least as complete.
         if (rebuilt.length >= liveChat.get().length) liveChat.set(rebuilt);
       } catch {
         /* offline / not configured */
@@ -83,8 +80,10 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
     };
   }, []);
 
+  // Scroll the list itself (not scrollIntoView, which would also scroll the page).
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = listRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [convo]);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -118,6 +117,7 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
         live to Joey&apos;s phone
       </div>
       <div
+        ref={listRef}
         className="flex-1 space-y-3 overflow-y-auto pr-1 text-sm leading-relaxed"
         role="log"
         aria-live="polite"
@@ -137,7 +137,6 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
             </span>
           </div>
         ))}
-        <div ref={endRef} />
       </div>
       <form onSubmit={onSubmit} className="mt-3 flex gap-2">
         <input
