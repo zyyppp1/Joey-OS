@@ -11,10 +11,10 @@ export function ExperienceTeaser() {
             key={job.company}
             className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-border pb-4 last:border-b-0"
           >
-            <p className="font-medium">
+            <p className="text-sm font-medium">
               {job.role} · {job.company}
             </p>
-            <span className="font-mono text-xs text-muted">{job.period}</span>
+            <span className="font-mono text-sm text-muted">{job.period}</span>
           </div>
         ))}
       </div>
