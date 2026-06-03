@@ -48,7 +48,7 @@ export default async function BlogPostPage({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={post.coverImage}
-              alt=""
+              alt={post.title}
               className="mt-6 w-full rounded-2xl border border-border"
             />
           )}

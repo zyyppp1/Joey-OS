@@ -5,7 +5,7 @@ import { VersionSwitch } from "./fx/VersionSwitch";
 export function Nav() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-bg/70 backdrop-blur-md">
-      <nav className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+      <nav aria-label="Primary" className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
         <Link href="/" className="font-mono text-sm font-semibold tracking-tight">
           JZ<span className="text-terminal">_</span>
         </Link>

@@ -21,5 +21,4 @@ export const profile = {
   },
 
   resumePdf: "/Joey_Resume.pdf",
-  githubUsername: "zyyppp1",
 } as const;

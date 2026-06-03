@@ -51,7 +51,7 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
         const data = await res.json();
         if (!Array.isArray(data.messages)) return;
         const sorted = [...data.messages].sort((a, b) =>
-          String(a.Timestamp).localeCompare(String(b.Timestamp))
+          String(a.Timestamp || "").localeCompare(String(b.Timestamp || ""))
         );
         const rebuilt: LiveMsg[] = sorted.map((m: { Sender: string; Text: string }) => ({
           sender: m.Sender === "joey" ? "joey" : "visitor",
@@ -93,6 +93,14 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
     setInput("");
     liveChat.append({ sender: "visitor", text: t });
     setSending(true);
+    if (!AWS_API_URL) {
+      liveChat.append({
+        sender: "joey",
+        text: "[live chat isn't connected in this environment yet]",
+      });
+      setSending(false);
+      return;
+    }
     try {
       await fetch(AWS_API_URL, {
         method: "POST",

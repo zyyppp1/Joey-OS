@@ -30,6 +30,8 @@ export const metadata: Metadata = {
     title: `${profile.name} — ${profile.title}`,
     description: profile.summary,
     url: profile.siteUrl,
+    siteName: profile.shortName,
+    locale: "en_GB",
     type: "website",
   },
   twitter: { card: "summary_large_image" },
@@ -60,7 +62,9 @@ export default function RootLayout({
           </a>
           <Nav />
         </SiteChrome>
-        <div id="content">{children}</div>
+        <div id="content" tabIndex={-1} className="outline-none">
+          {children}
+        </div>
         <SiteChrome>
           <Footer />
           <FloatingChat />

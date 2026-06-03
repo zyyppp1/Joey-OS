@@ -16,7 +16,6 @@ export type Project = {
   impact: string[];
   stack: string[];
   links?: { label: string; href: string }[];
-  featured?: boolean;
 };
 
 export const projects: Project[] = [
@@ -66,7 +65,6 @@ export const projects: Project[] = [
         "href": "https://github.com/zyyppp1/Joey-OS"
       }
     ],
-    "featured": true
   },
   {
     "slug": "ai-resume-editor",
@@ -106,7 +104,6 @@ export const projects: Project[] = [
         "href": "https://ai-resume-editor.fly.dev"
       }
     ],
-    "featured": true
   },
   {
     "slug": "oxo-game-api",
@@ -147,7 +144,6 @@ export const projects: Project[] = [
         "href": "https://github.com/zyyppp1/interview-YepengZhu-06.30"
       }
     ],
-    "featured": true
   },
   {
     "slug": "tlscontact-visa-rpa-monitor",
@@ -191,7 +187,6 @@ export const projects: Project[] = [
         "href": "https://github.com/zyyppp1/TLS-France-Visa-Slot-Searcher-Tampermonkey"
       }
     ],
-    "featured": true
   },
   {
     "slug": "healthy-qa-chatbot",
@@ -232,7 +227,6 @@ export const projects: Project[] = [
         "href": "https://github.com/zyyppp1/chatbot-project"
       }
     ],
-    "featured": false
   },
   {
     "slug": "zoho-mail-ai",
@@ -261,7 +255,6 @@ export const projects: Project[] = [
       "Zoho Mail API",
       "OAuth2"
     ],
-    "featured": false
   },
   {
     "slug": "ui-and-api-test-automation-suite",
@@ -298,7 +291,6 @@ export const projects: Project[] = [
         "href": "https://github.com/zyyppp1/UI-test-and-API-test"
       }
     ],
-    "featured": false
   },
   {
     "slug": "us-visa-appointment-rescheduler",
@@ -332,7 +324,6 @@ export const projects: Project[] = [
         "href": "https://github.com/zyyppp1/Find-U.S-Visa-slot"
       }
     ],
-    "featured": false
   }
 ];
 

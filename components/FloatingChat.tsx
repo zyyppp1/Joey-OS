@@ -23,7 +23,7 @@ export default function FloatingChat() {
     document.addEventListener("keydown", onKey);
     panelRef.current?.querySelector("input")?.focus();
     return () => document.removeEventListener("keydown", onKey);
-  }, [open]);
+  }, [open, tab]);
 
   return (
     <>
@@ -49,8 +49,10 @@ export default function FloatingChat() {
             {(["ai", "live"] as const).map((t) => (
               <button
                 key={t}
+                id={`chat-tab-${t}`}
                 role="tab"
                 aria-selected={tab === t}
+                aria-controls="chat-panel"
                 onClick={() => setTab(t)}
                 className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
                   tab === t ? "text-fg" : "text-muted hover:text-fg"
@@ -60,7 +62,13 @@ export default function FloatingChat() {
               </button>
             ))}
           </div>
-          <div className="min-h-0 flex-1 p-4">
+          <div
+            role="tabpanel"
+            id="chat-panel"
+            aria-labelledby={`chat-tab-${tab}`}
+            tabIndex={0}
+            className="min-h-0 flex-1 p-4"
+          >
             {tab === "ai" ? <AiChatPanel /> : <LiveChatPanel />}
           </div>
         </div>

@@ -1,43 +1,61 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 
 type Phase = "in" | "out";
+type Tile = {
+  key: string;
+  inDelay: number;
+  outDelay: number;
+  opacity: number;
+  rot: number;
+  tx: number;
+};
 
 const COLS = 28;
 const ROWS = 16;
 
+// Built in the click handler (not during render) so the randomness stays pure-render-free.
+function buildTiles(): Tile[] {
+  const arr: Tile[] = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      arr.push({
+        key: `${r}-${c}`,
+        inDelay: r * 0.03 + Math.random() * 0.16,
+        outDelay: Math.random() * 0.3,
+        opacity: 0.7 + Math.random() * 0.3,
+        rot: (Math.random() - 0.5) * 100,
+        tx: (Math.random() - 0.5) * 140,
+      });
+    }
+  }
+  return arr;
+}
+
 /**
  * "prefer old version?" → a full-screen black-glass shatter transition: the
- * screen breaks into a dense grid of smoked-glass fragments that fall (with
- * gravity, rotation, drift), we route to /joey-os underneath, then the shards
- * keep falling to reveal the old desktop OS.
- *
- * The overlay is portaled to <body> so it escapes the nav's backdrop-filter
- * containing block and covers the whole viewport. Reduced-motion skips it.
+ * screen breaks into a dense grid of smoked-glass fragments that fall (gravity,
+ * rotation, drift), we route to /joey-os underneath, then the shards keep
+ * falling to reveal the old desktop OS. Portaled to <body> so it escapes the
+ * nav's backdrop-filter and covers the whole viewport. Reduced-motion skips it.
  */
 export function VersionSwitch() {
   const router = useRouter();
   const [active, setActive] = useState(false);
   const [phase, setPhase] = useState<Phase>("in");
+  const [tiles, setTiles] = useState<Tile[]>([]);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const tiles = useMemo(() => {
-    const arr = [];
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        arr.push({
-          key: `${r}-${c}`,
-          inDelay: r * 0.03 + Math.random() * 0.16,
-          outDelay: Math.random() * 0.3,
-          opacity: 0.7 + Math.random() * 0.3,
-          rot: (Math.random() - 0.5) * 100,
-          tx: (Math.random() - 0.5) * 140,
-        });
-      }
-    }
-    return arr;
+  // If we unmount mid-transition (e.g. a fast subsequent navigation), clear the
+  // pending timers and never leave the document scroll-locked.
+  useEffect(() => {
+    return () => {
+      timers.current.forEach(clearTimeout);
+      document.documentElement.style.overflow = "";
+    };
   }, []);
 
   const go = () => {
@@ -46,16 +64,19 @@ export function VersionSwitch() {
       router.push("/joey-os");
       return;
     }
+    setTiles(buildTiles());
     setPhase("in");
     setActive(true);
     document.documentElement.style.overflow = "hidden";
     router.prefetch("/joey-os");
-    setTimeout(() => router.push("/joey-os"), 850);
-    setTimeout(() => setPhase("out"), 1050);
-    setTimeout(() => {
-      setActive(false);
-      document.documentElement.style.overflow = "";
-    }, 1850);
+    timers.current = [
+      setTimeout(() => router.push("/joey-os"), 850),
+      setTimeout(() => setPhase("out"), 1050),
+      setTimeout(() => {
+        setActive(false);
+        document.documentElement.style.overflow = "";
+      }, 1850),
+    ];
   };
 
   return (
@@ -67,8 +88,6 @@ export function VersionSwitch() {
         prefer old version?
       </button>
 
-      {/* Portal to <body> so the overlay isn't trapped inside the nav's
-          backdrop-filter containing block (would otherwise cover only the nav). */}
       {active &&
         typeof document !== "undefined" &&
         createPortal(

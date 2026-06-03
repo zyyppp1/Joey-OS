@@ -91,10 +91,6 @@
   0% { transform: translateY(-130%); }
   100% { transform: translateY(0); }
 }
-@keyframes shardFallOut {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(130%); }
-}
 @keyframes shardLabel {
   0%, 22% { opacity: 0; }
   42%, 76% { opacity: 1; }
@@ -106,9 +102,6 @@
 }
 .shard-in {
   animation: shardFallIn 0.5s cubic-bezier(0.45, 0, 0.7, 0.2) both;
-}
-.shard-out {
-  animation: shardFallOut 0.5s cubic-bezier(0.45, 0, 0.7, 0.2) both;
 }
 @keyframes shatterOut {
   from { transform: translateY(0) translateX(0) rotate(0deg); }
@@ -140,5 +133,8 @@
     opacity: 1;
     transform: none;
     transition: none;
+  }
+  .animate-pulse {
+    animation: none !important;
   }
 }
